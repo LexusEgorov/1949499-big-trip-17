@@ -1,35 +1,39 @@
+import dayjs from 'dayjs';
+
+import {
+  getTimeDifference
+} from '../util';
+
 import {
   createElement
 } from '../render';
 
-export default class RoutePointView{
-  getTemplate() {
+export default class RoutePointView {
+  constructor(point) {
+    this.point = point;
+  }
+
+  getTemplate(point) {
     return `<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="2019-03-18">MAR 18</time>
+      <time class="event__date" datetime="2019-03-18">${dayjs(point.dateFrom).format('MMM DD')}</time>
       <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">Taxi Amsterdam</h3>
+      <h3 class="event__title">${point.type} ${point.destination}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+          <time class="event__start-time" datetime="2019-03-18T11:00">${dayjs(point.dateFrom).format('HH:mm')}</time>
           &mdash;
-          <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+          <time class="event__end-time" datetime="2019-03-18T11:00">${dayjs(point.dateTo).format('HH:mm')}</time>
         </p>
-        <p class="event__duration">30M</p>
+        <p class="event__duration">${getTimeDifference(point.dateFrom, point.dateTo)}</p>
       </div>
       <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">20</span>
+        &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
       </p>
       <h4 class="visually-hidden">Offers:</h4>
-      <ul class="event__selected-offers">
-        <li class="event__offer">
-          <span class="event__offer-title">Order Uber</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">20</span>
-        </li>
-      </ul>
+      <ul class="event__selected-offers"></ul>
       <button class="event__favorite-btn event__favorite-btn--active" type="button">
         <span class="visually-hidden">Add to favorite</span>
         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -45,7 +49,7 @@ export default class RoutePointView{
 
   getElement() {
     if (!this.element) {
-      this.element = createElement(this.getTemplate());
+      this.element = createElement(this.getTemplate(this.point));
     }
 
     return this.element;
