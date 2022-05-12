@@ -1,4 +1,4 @@
-const offers = [
+const OFFERS = [
   {
     type: 'taxi',
     offers: [
@@ -43,7 +43,7 @@ const offers = [
 
 const mapOffers = new Map();
 
-offers.forEach((offer) => {
+OFFERS.forEach((offer) => {
   mapOffers.set(offer.type, offer);
 });
 

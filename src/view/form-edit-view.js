@@ -2,12 +2,40 @@ import {
   createElement
 } from '../render';
 
-import { mapDestinations } from '../fish/destinations.js';
+import {
+  mapDestinations
+} from '../fish/destinations.js';
+
+import {
+  mapOffers
+} from '../fish/offers';
+
+import {
+  isChecked
+} from '../util';
+
 import dayjs from 'dayjs';
 
 export default class FormEditView {
-  constructor(point){
+  constructor(point) {
     this.point = point;
+    this.offers = mapOffers.get(point.type).offers;
+  }
+
+  getOfferTemplate({
+    title,
+    id,
+    price
+  }) {
+    return `
+    <div class="event__offer-selector">
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${id}" type="checkbox" name="event-offer-luggage" ${isChecked(id, this.point.offers)}>
+    <label class="event__offer-label" for="event-offer-luggage-${id}">
+      <span class="event__offer-title">${title}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${price}</span>
+    </label>
+  </div>`;
   }
 
   getTemplate(point) {
@@ -127,6 +155,10 @@ export default class FormEditView {
   getElement() {
     if (!this.element) {
       this.element = createElement(this.getTemplate(this.point));
+      this.offersList = this.element.querySelector('.event__available-offers');
+      for (const offer of this.offers) {
+        this.offersList.append(createElement(this.getOfferTemplate(offer)));
+      }
     }
 
     return this.element;
