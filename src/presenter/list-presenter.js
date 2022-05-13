@@ -20,8 +20,6 @@ export default class ListPresenter {
     this.#listContainer = listContainer;
     render(new SortView(), listContainer);
     render(this.#listComponent, listContainer);
-    this.#editComponent.init(this.#listComponent.element, pointsModel[0]);
-    this.#createComponent.init(this.#listComponent.element, pointsModel[0]);
     for (let i = 0; i < MAX_COUNT_POINTS; i++) {
       const point = new PointPresenter();
       point.init(this.#listComponent.element, pointsModel[i]);
