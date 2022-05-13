@@ -3,9 +3,11 @@ import {
 } from '../fish/point.js';
 
 export default class PointModel {
-  points = Array.from({
+  #points = Array.from({
     length: 5
   }, generatePoint);
 
-  getPoints = () => this.points;
+  get points() {
+    return this.#points;
+  }
 }

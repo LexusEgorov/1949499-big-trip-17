@@ -5,8 +5,10 @@ import {
 } from '../render.js';
 
 export default class PointPresenter {
+  #point = null;
+
   init = (pointsContainer, point) => {
-    this.point = new RoutePointView(point);
-    render(this.point, pointsContainer);
+    this.#point = new RoutePointView(point);
+    render(this.#point, pointsContainer);
   };
 }

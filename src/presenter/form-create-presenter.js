@@ -5,8 +5,9 @@ import {
 } from '../render.js';
 
 export default class FormCreatePresenter {
+  #formCreate = null;
   init = (listComponent, point) => {
-    this.formCreate = new FormCreateView(point);
-    render(this.formCreate, listComponent);
+    this.#formCreate = new FormCreateView(point);
+    render(this.#formCreate, listComponent);
   };
 }

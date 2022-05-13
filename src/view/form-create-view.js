@@ -17,21 +17,27 @@ import {
 } from '../render';
 
 export default class FormCreateView {
+  #element = null;
+  #point = null;
+  #offers = null;
+  #offersList = null;
+  #pictures = null;
+  #picturesList = null;
 
   constructor(point) {
-    this.point = point;
-    this.offers = mapOffers.get(point.type).offers;
-    this.pictures = mapDestinations.get(point.destination).pictures;
+    this.#point = point;
+    this.#offers = mapOffers.get(point.type).offers;
+    this.#pictures = mapDestinations.get(point.destination).pictures;
   }
 
-  getPictureTemplate(src) {
+  #getPictureTemplate(src) {
     return `<img class="event__photo" src=${src} alt="Event photo"></img>`;
   }
 
-  getOfferTemplate({title, id, price}) {
+  #getOfferTemplate({title, id, price}) {
     return `
     <div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${id}" type="checkbox" name="event-offer-luggage" ${isChecked(id, this.point.offers)}>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${id}" type="checkbox" name="event-offer-luggage" ${isChecked(id, this.#point.offers)}>
     <label class="event__offer-label" for="event-offer-luggage-${id}">
       <span class="event__offer-title">${title}</span>
       &plus;&euro;&nbsp;
@@ -40,14 +46,14 @@ export default class FormCreateView {
   </div>`;
   }
 
-  getTemplate(point) {
+  #getTemplate({type, destination}) {
     return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -105,9 +111,9 @@ export default class FormCreateView {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${point.type}
+            ${type}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${point.destination} list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${destination} list="destination-list-1">
           <datalist id="destination-list-1">
             <option value="Amsterdam"></option>
             <option value="Geneva"></option>
@@ -143,7 +149,7 @@ export default class FormCreateView {
 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${mapDestinations.get(point.destination).description}</p>
+          <p class="event__destination-description">${mapDestinations.get(destination).description}</p>
 
           <div class="event__photos-container">
             <div class="event__photos-tape"></div>
@@ -154,23 +160,23 @@ export default class FormCreateView {
   </li>`;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate(this.point));
-      this.picturesList = this.element.querySelector('.event__photos-tape');
-      this.offersList = this.element.querySelector('.event__available-offers');
-      for (const { src } of this.pictures) {
-        this.picturesList.append(createElement(this.getPictureTemplate(src)));
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.#getTemplate(this.#point));
+      this.#picturesList = this.#element.querySelector('.event__photos-tape');
+      this.#offersList = this.#element.querySelector('.event__available-offers');
+      for (const { src } of this.#pictures) {
+        this.#picturesList.append(createElement(this.#getPictureTemplate(src)));
       }
-      for(const offer of this.offers){
-        this.offersList.append(createElement(this.getOfferTemplate(offer)));
+      for(const offer of this.#offers){
+        this.#offersList.append(createElement(this.#getOfferTemplate(offer)));
       }
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

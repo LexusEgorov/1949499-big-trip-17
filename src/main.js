@@ -8,7 +8,7 @@ const siteEvents = document.querySelector('.trip-events');
 const listPresenter = new ListPresenter();
 const headerPresenter = new HeaderPresenter();
 
-const pointsModel = new PointModel().getPoints();
+const pointsModel = new PointModel().points;
 
 headerPresenter.init(siteFilter);
 listPresenter.init(siteEvents, pointsModel);

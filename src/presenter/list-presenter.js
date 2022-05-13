@@ -11,19 +11,20 @@ import {
 const MAX_COUNT_POINTS = 3;
 
 export default class ListPresenter {
-  listComponent = new PointsListView();
-  editComponent = new FormEditPresenter();
-  createComponent = new FormCreatePresenter();
+  #listComponent = new PointsListView();
+  #editComponent = new FormEditPresenter();
+  #createComponent = new FormCreatePresenter();
+  #listContainer = null;
 
   init = (listContainer, pointsModel) => {
-    this.listContainer = listContainer;
+    this.#listContainer = listContainer;
     render(new SortView(), listContainer);
-    render(this.listComponent, listContainer);
-    this.editComponent.init(this.listComponent.getElement(), pointsModel[0]);
-    this.createComponent.init(this.listComponent.getElement(), pointsModel[0]);
+    render(this.#listComponent, listContainer);
+    this.#editComponent.init(this.#listComponent.element, pointsModel[0]);
+    this.#createComponent.init(this.#listComponent.element, pointsModel[0]);
     for (let i = 0; i < MAX_COUNT_POINTS; i++) {
       const point = new PointPresenter();
-      point.init(this.listContainer, pointsModel[i]);
+      point.init(this.#listComponent.element, pointsModel[i]);
     }
   };
 }

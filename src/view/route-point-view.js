@@ -13,17 +13,19 @@ import {
 } from '../fish/offers';
 
 export default class RoutePointView {
+  #element = null;
+  #point = null;
+  #offers = null;
+  #selectedOffers = null;
+  #offersList = null;
 
   constructor(point) {
-    this.point = point;
-    this.offers = mapOffers.get(point.type).offers;
-    this.selectedOffers = point.offers;
+    this.#point = point;
+    this.#offers = mapOffers.get(point.type).offers;
+    this.#selectedOffers = point.offers;
   }
 
-  getOfferTemplate({
-    title,
-    price
-  }) {
+  #getOfferTemplate({title, price}) {
     return `<li class="event__offer">
     <span class="event__offer-title">${title}</span>
     &plus;&euro;&nbsp;
@@ -31,7 +33,7 @@ export default class RoutePointView {
     </li>`;
   }
 
-  getTemplate({dateFrom, type, destination, dateTo, basePrice}) {
+  #getTemplate({dateFrom, type, destination, dateTo, basePrice}) {
     return `<li class="trip-events__item">
     <div class="event">
       <time class="event__date" datetime="2019-03-18">${dayjs(dateFrom).format('MMM DD')}</time>
@@ -65,19 +67,19 @@ export default class RoutePointView {
   </li>`;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate(this.point));
-      this.offersList = this.element.querySelector('.event__selected-offers');
-      for (let i = 0; i < this.selectedOffers.length; i++){
-        this.offersList.append(createElement(this.getOfferTemplate(this.offers[i])));
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.#getTemplate(this.#point));
+      this.#offersList = this.#element.querySelector('.event__selected-offers');
+      for (let i = 0; i < this.#selectedOffers.length; i++){
+        this.#offersList.append(createElement(this.#getOfferTemplate(this.#offers[i])));
       }
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
