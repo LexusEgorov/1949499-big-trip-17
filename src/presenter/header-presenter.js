@@ -6,7 +6,7 @@ import {
 export default class HeaderPresenter {
   #headerComponent = new FilterView();
 
-  init = (headerContainer) => {
+  init(headerContainer) {
     render(this.#headerComponent, headerContainer);
-  };
+  }
 }
