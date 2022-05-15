@@ -3,7 +3,9 @@ import {
 } from '../render';
 
 export default class FilterView {
-  getTemplate() {
+  #element = null;
+
+  #getTemplate() {
     return `
     <form class="trip-filters" action="#" method="get">
       <div class="trip-filters__filter">
@@ -25,15 +27,15 @@ export default class FilterView {
     </form>`;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.#getTemplate());
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

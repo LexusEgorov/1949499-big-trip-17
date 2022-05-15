@@ -17,19 +17,20 @@ import {
 import dayjs from 'dayjs';
 
 export default class FormEditView {
+  #element = null;
+  #point = null;
+  #offers = null;
+  #offersList = null;
+
   constructor(point) {
-    this.point = point;
-    this.offers = mapOffers.get(point.type).offers;
+    this.#point = point;
+    this.#offers = mapOffers.get(point.type).offers;
   }
 
-  getOfferTemplate({
-    title,
-    id,
-    price
-  }) {
+  #getOfferTemplate({title, id, price}) {
     return `
     <div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${id}" type="checkbox" name="event-offer-luggage" ${isChecked(id, this.point.offers)}>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${id}" type="checkbox" name="event-offer-luggage" ${isChecked(id, this.#point.offers)}>
     <label class="event__offer-label" for="event-offer-luggage-${id}">
       <span class="event__offer-title">${title}</span>
       &plus;&euro;&nbsp;
@@ -38,14 +39,14 @@ export default class FormEditView {
   </div>`;
   }
 
-  getTemplate(point) {
+  #getTemplate({type, destination, dateFrom, dateTo, basePrice}) {
     return `<li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -103,9 +104,9 @@ export default class FormEditView {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${point.type}
+            ${type}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${point.destination} list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${destination} list="destination-list-1">
           <datalist id="destination-list-1">
             <option value="Amsterdam"></option>
             <option value="Geneva"></option>
@@ -115,10 +116,10 @@ export default class FormEditView {
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(point.dateFrom).format('DD/MM/YY HH:mm')}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(dateFrom).format('DD/MM/YY HH:mm')}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(point.dateTo).format('DD/MM/YY HH:mm')}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(dateTo).format('DD/MM/YY HH:mm')}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -126,7 +127,7 @@ export default class FormEditView {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${point.basePrice}>
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value=${basePrice}>
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -145,26 +146,26 @@ export default class FormEditView {
 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${mapDestinations.get(point.destination).description}</p>
+          <p class="event__destination-description">${mapDestinations.get(destination).description}</p>
         </section>
       </section>
     </form>
   </li>`;
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate(this.point));
-      this.offersList = this.element.querySelector('.event__available-offers');
-      for (const offer of this.offers) {
-        this.offersList.append(createElement(this.getOfferTemplate(offer)));
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.#getTemplate(this.#point));
+      this.#offersList = this.#element.querySelector('.event__available-offers');
+      for (const offer of this.#offers) {
+        this.#offersList.append(createElement(this.#getOfferTemplate(offer)));
       }
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

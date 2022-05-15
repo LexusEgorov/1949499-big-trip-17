@@ -4,9 +4,9 @@ import {
 } from '../render.js';
 
 export default class HeaderPresenter {
-  headerComponent = new FilterView();
+  #headerComponent = new FilterView();
 
-  init = (headerContainer) => {
-    render(new FilterView(), headerContainer);
-  };
+  init(headerContainer) {
+    render(this.#headerComponent, headerContainer);
+  }
 }
