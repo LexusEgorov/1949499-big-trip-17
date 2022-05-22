@@ -4,11 +4,8 @@ import RoutePointView from '../view/route-point-view.js';
 import FormEditView from '../view/form-edit-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
-import FormCreateView from '../view/form-create-view.js';
 
-import {
-  render
-} from '../render.js';
+import { render } from '../framework/render';
 
 const MAX_COUNT_POINTS = 3;
 
@@ -20,12 +17,13 @@ const MESSAGES_MAP = new Map([
 
 export default class ListPresenter {
   #listComponent = new PointsListView();
-  #filters = new FilterView();
+  #filtersComponent = new FilterView();
+  #sortComponent = new SortView();
   #pointsData = null;
 
   #renderMessage(){
     const getMessage = () => {
-      const checkedFilter = this.#filters.element.querySelector(['input:checked']).value;
+      const checkedFilter = this.#filtersComponent.element.querySelector(['input:checked']).value;
       return MESSAGES_MAP.get(checkedFilter);
     };
 
@@ -58,23 +56,20 @@ export default class ListPresenter {
       }
     };
 
-    const submitHandler = (evt) => {
-      evt.preventDefault();
-      document.removeEventListener('keydown', escKeyDownHandler);
-      replaceFormToPoint();
-    };
-
-    pointComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+    pointComponent.setEditClickHandler(() => {
       replacePointToForm();
       document.addEventListener('keydown', escKeyDownHandler);
     });
 
-    editComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      document.removeEventListener('keydown', escKeyDownHandler);
+    editComponent.setPointClickHandler(() => {
       replaceFormToPoint();
+      document.removeEventListener('keydown', escKeyDownHandler);
     });
 
-    editComponent.element.addEventListener('submit', submitHandler);
+    editComponent.setSubmitHandler(() => {
+      replaceFormToPoint();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
 
     render(pointComponent, this.#listComponent.element);
   }
@@ -90,11 +85,12 @@ export default class ListPresenter {
 
   init(listContainer, headerContainer, pointsModel){
     this.#pointsData = pointsModel;
-    render(this.#filters, headerContainer);
-    render(new SortView(), listContainer);
+
+    render(this.#filtersComponent, headerContainer);
+    render(this.#sortComponent, listContainer);
     render(this.#listComponent, listContainer);
 
-    this.#filters.element.addEventListener('change', () => {
+    this.#filtersComponent.setChangeHandler(() => {
       if(this.#isEmpty()){
         this.#renderMessage();
       }

@@ -170,4 +170,24 @@ export default class FormEditView extends AbstractView{
   get template() {
     return getEditTemplate(this.#point, this.#offers);
   }
+
+  setSubmitHandler = (cb) => {
+    this._callback.submit = cb;
+    this.element.addEventListener('submit', this.#submitHandler);
+  };
+
+  #submitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.submit();
+  };
+
+  setPointClickHandler = (cb) => {
+    this._callback.pointClick = cb;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#pointClickHandler);
+  };
+
+  #pointClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.pointClick();
+  };
 }

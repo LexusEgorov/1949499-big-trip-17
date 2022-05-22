@@ -72,4 +72,14 @@ export default class RoutePointView extends AbstractView{
   get template(){
     return getPointTemplate(this.#point, this.#offers, this.#selectedOffers);
   }
+
+  setEditClickHandler = (cb) => {
+    this._callback.editClick = cb;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  };
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
+  };
 }

@@ -22,4 +22,14 @@ export default class FilterView extends AbstractView {
       <button class="visually-hidden" type="submit">Accept filter</button>
     </form>`;
   }
+
+  setChangeHandler = (cb) => {
+    this._callback.change = cb;
+    this.element.addEventListener('change', this.#changeHandler);
+  };
+
+  #changeHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.change();
+  };
 }
