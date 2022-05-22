@@ -4,12 +4,13 @@ import RoutePointView from '../view/route-point-view.js';
 import FormEditView from '../view/form-edit-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
+import FormCreateView from '../view/form-create-view.js';
 
 import {
   render
 } from '../render.js';
 
-const MAX_COUNT_POINTS = 5;
+const MAX_COUNT_POINTS = 3;
 
 const MESSAGES_MAP = new Map([
   ['everything', 'Click New Event to create your first point'],
