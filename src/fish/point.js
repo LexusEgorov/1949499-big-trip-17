@@ -1,11 +1,11 @@
 import {
   getRandomInteger,
-} from '../util';
+} from '../utils/util';
 
 const MIN_PRICE = 100;
 const MAX_PRICE = 300;
 
-const DATES_FROM = ['2019-07-10T22:55:56.845Z', '2019-07-10T12:50:56.845Z', '2019-07-09T22:55:56.845Z'];
+const DATES_FROM = ['2023-07-10T22:55:56.845Z', '2019-07-10T12:50:56.845Z', '2019-07-09T22:55:56.845Z'];
 const DATES_TO = ['2019-07-12T22:59:56.845Z', '2019-07-10T22:50:56.845Z', '2019-07-11T18:42:56.845Z'];
 
 const getRandomPointType = () => {

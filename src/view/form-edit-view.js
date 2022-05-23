@@ -3,7 +3,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { mapDestinations } from '../fish/destinations.js';
 import { mapOffers } from '../fish/offers';
 
-import { isChecked } from '../util.js';
+import { isChecked } from '../utils/util.js';
 import dayjs from 'dayjs';
 
 const getOfferTemplate = (point, offer) => `
