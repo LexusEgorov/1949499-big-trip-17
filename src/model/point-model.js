@@ -4,7 +4,7 @@ import {
 
 export default class PointModel {
   #points = Array.from({
-    length: 0
+    length: 3
   }, generatePoint);
 
   get points() {

@@ -1,11 +1,7 @@
-import {
-  createElement
-} from '../render';
+import AbstractView from '../framework/view/abstract-view';
 
-export default class FilterView {
-  #element = null;
-
-  #getTemplate() {
+export default class FilterView extends AbstractView {
+  get template() {
     return `
     <form class="trip-filters" action="#" method="get">
       <div class="trip-filters__filter">
@@ -27,15 +23,13 @@ export default class FilterView {
     </form>`;
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.#getTemplate());
-    }
+  setChangeHandler = (cb) => {
+    this._callback.change = cb;
+    this.element.addEventListener('change', this.#changeHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #changeHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.change();
+  };
 }
