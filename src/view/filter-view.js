@@ -8,13 +8,7 @@ const getFilterItemTemplate = ({name, count}) => `
   </div>
 `;
 
-const getFilterItems = (filters) => {
-  let filterItemsTemplate = '';
-  for(const filter of filters){
-    filterItemsTemplate += getFilterItemTemplate(filter);
-  }
-  return filterItemsTemplate;
-};
+const getFilterItems = (filters) => filters.map((filter) => getFilterItemTemplate(filter)).join('');
 
 export default class FilterView extends AbstractView {
   #filters;

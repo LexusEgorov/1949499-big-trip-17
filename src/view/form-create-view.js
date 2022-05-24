@@ -16,23 +16,18 @@ const getOfferTemplate = (point, offer) =>
   </div>
   `;
 
-const getPictureTemplate = (src) => `<img class="event__photo" src=${src} alt="Event photo"></img>`;
+const getPictureTemplate = ({src}) => `<img class="event__photo" src=${src} alt="Event photo"></img>`;
 
-const getOffers = (point, offers) => {
+const getOffers = (point, offers) => offers.map((offer) => getOfferTemplate(point, offer)).join('');
+/*{
   let offersTemplate = '';
   for(const offer of offers){
     offersTemplate += getOfferTemplate(point, offer);
   }
   return offersTemplate;
-};
+};*/
 
-const getPictures = (pictures) => {
-  let picturesTemplate = '';
-  for(const {src} of pictures){
-    picturesTemplate += getPictureTemplate(src);
-  }
-  return picturesTemplate;
-};
+const getPictures = (pictures) => pictures.map((picture) => getPictureTemplate(picture)).join('');
 
 const getCreateFormTemplate = (point, offers, pictures) => {
   const {type, destination} = point;
