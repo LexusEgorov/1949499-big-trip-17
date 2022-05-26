@@ -5,6 +5,7 @@ import FormEditView from '../view/form-edit-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
 
+import { generateFilters } from '../fish/filter.js';
 import { render } from '../framework/render';
 
 const MAX_COUNT_POINTS = 3;
@@ -15,11 +16,16 @@ const MESSAGES_MAP = new Map([
   ['future', 'There are no future events now'],
 ]);
 
-export default class ListPresenter {
+export default class PagePresenter {
   #listComponent = new PointsListView();
-  #filtersComponent = new FilterView();
   #sortComponent = new SortView();
+  #filtersComponent = null;
   #pointsData = null;
+
+  constructor(pointsData){
+    this.#pointsData = pointsData;
+    this.#filtersComponent = new FilterView(generateFilters(pointsData));
+  }
 
   #renderMessage(){
     const getMessage = () => {
@@ -83,9 +89,7 @@ export default class ListPresenter {
     return false;
   }
 
-  init(listContainer, headerContainer, pointsModel){
-    this.#pointsData = pointsModel;
-
+  init(listContainer, headerContainer){
     render(this.#filtersComponent, headerContainer);
     render(this.#sortComponent, listContainer);
     render(this.#listComponent, listContainer);
@@ -101,7 +105,7 @@ export default class ListPresenter {
     }
     else{
       for (let i = 0; i < MAX_COUNT_POINTS; i++) {
-        this.#renderPoint(pointsModel[i]);
+        this.#renderPoint(this.#pointsData[i]);
       }
     }
   }

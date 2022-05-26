@@ -3,7 +3,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { mapDestinations } from '../fish/destinations.js';
 import { mapOffers } from '../fish/offers';
 
-import { isChecked } from '../util.js';
+import { isChecked } from '../utils/util.js';
 import dayjs from 'dayjs';
 
 const getOfferTemplate = (point, offer) => `
@@ -16,13 +16,7 @@ const getOfferTemplate = (point, offer) => `
 </label>
 </div>`;
 
-const getOffers = (point, offers) => {
-  let offersTemplate = '';
-  for(const offer of offers){
-    offersTemplate += getOfferTemplate(point, offer);
-  }
-  return offersTemplate;
-};
+const getOffers = (point, offers) => offers.map((offer) => getOfferTemplate(point, offer)).join('');
 
 const getEditTemplate = (point, offers) => {
   const {type, destination, dateFrom, dateTo, basePrice} = point;

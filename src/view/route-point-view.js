@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { getTimeDifference } from '../util';
+import { getTimeDifference } from '../utils/util';
 import { mapOffers } from '../fish/offers';
 import AbstractView from '../framework/view/abstract-view';
 
