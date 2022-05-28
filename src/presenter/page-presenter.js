@@ -1,13 +1,12 @@
 import SortView from '../view/sort-view.js';
 import PointsListView from '../view/points-list-view.js';
-import RoutePointView from '../view/route-point-view.js';
-import FormEditView from '../view/form-edit-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
 
 import { generateFilters } from '../fish/filter.js';
 import { render } from '../framework/render';
 import { MESSAGES_MAP } from '../utils/filter.js';
+import PointPresenter from './point-presenter.js';
 
 export default class PagePresenter {
   #list = new PointsListView();
@@ -27,47 +26,10 @@ export default class PagePresenter {
     render(this.#sort, this.#listContainer);
   }
 
-  #renderPoint(point){
-    const pointComponent = new RoutePointView(point);
-    const editComponent = new FormEditView(point);
-
-    render(pointComponent, this.#list.element);
-
-    const replaceFormToPoint = () => {
-      this.#list.element.replaceChild(pointComponent.element, editComponent.element);
-    };
-
-    const replacePointToForm = () => {
-      this.#list.element.replaceChild(editComponent.element, pointComponent.element);
-    };
-
-    const escKeyDownHandler = (evt) =>{
-      if(evt.key === 'Escape' || evt.key === 'Esc'){
-        evt.preventDefault();
-        document.removeEventListener('keydown', escKeyDownHandler);
-        replaceFormToPoint();
-      }
-    };
-
-    pointComponent.setEditClickHandler(() => {
-      replacePointToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
-    });
-
-    editComponent.setPointClickHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    });
-
-    editComponent.setSubmitHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    });
-  }
-
   #renderPoints(){
     for(const point of this.#points){
-      this.#renderPoint(point);
+      const pointComponent = new PointPresenter(this.#list);
+      pointComponent.init(point);
     }
   }
 
