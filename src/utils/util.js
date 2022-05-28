@@ -11,7 +11,7 @@ const getRandomInteger = (from = 0, to = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const isChecked = (offer, offers) => {
+const getCheck = (offer, offers) => {
   let check = '';
 
   if (offers.some((element) => element === offer)) {
@@ -44,5 +44,5 @@ const getTimeDifference = (dateFrom, dateTo) => {
 export {
   getRandomInteger,
   getTimeDifference,
-  isChecked,
+  getCheck,
 };

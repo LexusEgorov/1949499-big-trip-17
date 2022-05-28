@@ -1,13 +1,14 @@
 import AbstractView from '../framework/view/abstract-view';
 import { mapDestinations } from '../fish/destinations';
 import { mapOffers } from '../fish/offers';
-import { isChecked } from '../util';
+
 import dayjs from 'dayjs';
+import { getCheck } from '../utils/util';
 
 const getOfferTemplate = (point, offer) =>
   `
   <div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="event-offer-luggage" ${isChecked(offer.id, point.offers)}>
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="event-offer-luggage" ${getCheck(offer.id, point.offers)}>
   <label class="event__offer-label" for="event-offer-luggage-${offer.id}">
   <span class="event__offer-title">${offer.title}</span>
   &plus;&euro;&nbsp;
@@ -19,13 +20,6 @@ const getOfferTemplate = (point, offer) =>
 const getPictureTemplate = ({src}) => `<img class="event__photo" src=${src} alt="Event photo"></img>`;
 
 const getOffers = (point, offers) => offers.map((offer) => getOfferTemplate(point, offer)).join('');
-/*{
-  let offersTemplate = '';
-  for(const offer of offers){
-    offersTemplate += getOfferTemplate(point, offer);
-  }
-  return offersTemplate;
-};*/
 
 const getPictures = (pictures) => pictures.map((picture) => getPictureTemplate(picture)).join('');
 

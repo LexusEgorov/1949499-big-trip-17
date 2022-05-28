@@ -3,12 +3,12 @@ import AbstractView from '../framework/view/abstract-view.js';
 import { mapDestinations } from '../fish/destinations.js';
 import { mapOffers } from '../fish/offers';
 
-import { isChecked } from '../utils/util.js';
+import { getCheck } from '../utils/util.js';
 import dayjs from 'dayjs';
 
 const getOfferTemplate = (point, offer) => `
 <div class="event__offer-selector">
-<input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="event-offer-luggage" ${isChecked(offer.id, point.offers)}>
+<input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="event-offer-luggage" ${getCheck(offer.id, point.offers)}>
 <label class="event__offer-label" for="event-offer-luggage-${offer.id}">
   <span class="event__offer-title">${offer.title}</span>
   &plus;&euro;&nbsp;

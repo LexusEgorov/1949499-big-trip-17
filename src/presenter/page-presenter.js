@@ -7,51 +7,38 @@ import FilterView from '../view/filter-view.js';
 
 import { generateFilters } from '../fish/filter.js';
 import { render } from '../framework/render';
-
-const MAX_COUNT_POINTS = 3;
-
-const MESSAGES_MAP = new Map([
-  ['everything', 'Click New Event to create your first point'],
-  ['past', 'There are no past events now'],
-  ['future', 'There are no future events now'],
-]);
+import { MESSAGES_MAP } from '../utils/filter.js';
 
 export default class PagePresenter {
-  #listComponent = new PointsListView();
-  #sortComponent = new SortView();
-  #filtersComponent = null;
-  #pointsData = null;
+  #list = new PointsListView();
+  #sort = new SortView();
 
-  constructor(pointsData){
-    this.#pointsData = pointsData;
-    this.#filtersComponent = new FilterView(generateFilters(pointsData));
+  #filter = null;
+  #points = null;
+  #listContainer = null;
+  #filterContainer = null;
+
+  #renderFilter(){
+    this.#filter = new FilterView(generateFilters(this.#points));
+    render(this.#filter, this.#filterContainer);
   }
 
-  #renderMessage(){
-    const getMessage = () => {
-      const checkedFilter = this.#filtersComponent.element.querySelector(['input:checked']).value;
-      return MESSAGES_MAP.get(checkedFilter);
-    };
-
-    if(this.#listComponent.element.children.length === 0){
-      render(new EmptyListView(getMessage()), this.#listComponent.element);
-    }
-    else{
-      this.#listComponent.element.replaceChild(new EmptyListView(getMessage()).element, this.#listComponent.element.firstChild);
-    }
-
+  #renderSort(){
+    render(this.#sort, this.#listContainer);
   }
 
-  #renderPoint(pointData){
-    const pointComponent = new RoutePointView(pointData);
-    const editComponent = new FormEditView(pointData);
+  #renderPoint(point){
+    const pointComponent = new RoutePointView(point);
+    const editComponent = new FormEditView(point);
+
+    render(pointComponent, this.#list.element);
 
     const replaceFormToPoint = () => {
-      this.#listComponent.element.replaceChild(pointComponent.element, editComponent.element);
+      this.#list.element.replaceChild(pointComponent.element, editComponent.element);
     };
 
     const replacePointToForm = () => {
-      this.#listComponent.element.replaceChild(editComponent.element, pointComponent.element);
+      this.#list.element.replaceChild(editComponent.element, pointComponent.element);
     };
 
     const escKeyDownHandler = (evt) =>{
@@ -76,37 +63,35 @@ export default class PagePresenter {
       replaceFormToPoint();
       document.removeEventListener('keydown', escKeyDownHandler);
     });
-
-    render(pointComponent, this.#listComponent.element);
   }
 
-  #isEmpty(){
-
-    if(this.#pointsData.length === 0){
-      return true;
+  #renderPoints(){
+    for(const point of this.#points){
+      this.#renderPoint(point);
     }
-
-    return false;
   }
 
-  init(listContainer, headerContainer){
-    render(this.#filtersComponent, headerContainer);
-    render(this.#sortComponent, listContainer);
-    render(this.#listComponent, listContainer);
+  #renderList(){
+    render(this.#list, this.#listContainer);
+    this.#renderPoints();
+  }
 
-    this.#filtersComponent.setChangeHandler(() => {
-      if(this.#isEmpty()){
-        this.#renderMessage();
-      }
-    });
+  #renderNoPoints(){
+    const checkedFilter = this.#filter.element.querySelector(['input:checked']).value;
+    const messageComponent = new EmptyListView(MESSAGES_MAP.get(checkedFilter));
+    render(messageComponent, this.#listContainer);
+  }
 
-    if(this.#isEmpty()){
-      this.#renderMessage();
-    }
-    else{
-      for (let i = 0; i < MAX_COUNT_POINTS; i++) {
-        this.#renderPoint(this.#pointsData[i]);
-      }
+  init(listContainer, filterContainer, points){
+    this.#points = points;
+    this.#listContainer = listContainer;
+    this.#filterContainer = filterContainer;
+    this.#renderFilter();
+    if(points.length > 0){
+      this.#renderSort();
+      this.#renderList();
+    } else {
+      this.#renderNoPoints();
     }
   }
 }
