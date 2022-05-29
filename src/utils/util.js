@@ -4,6 +4,12 @@ const HOUR_TO_MINUTES = 60;
 const DAY_TO_MINUTES = 1440;
 const FORMAT = 10;
 
+const SortType = {
+  DEFAULT: 'default',
+  TIME: 'time',
+  PRICE: 'price',
+};
+
 const getRandomInteger = (from = 0, to = 1) => {
   const lower = Math.floor(Math.min(from, to));
   const upper = Math.ceil(Math.max(from, to));
@@ -66,4 +72,5 @@ export {
   getCheck,
   generator,
   updatePoint,
+  SortType,
 };
