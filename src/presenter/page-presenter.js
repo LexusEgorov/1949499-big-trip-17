@@ -36,7 +36,7 @@ export default class PagePresenter {
   }
 
   #renderPoint(point){
-    const pointPresenter = new PointPresenter(this.#list, this.#handlePointChange);
+    const pointPresenter = new PointPresenter(this.#list, this.#handlePointChange, this.#handleModeChange);
     pointPresenter.init(point);
     this.#pointPresenter.set(point.id, pointPresenter);
   }
@@ -66,6 +66,10 @@ export default class PagePresenter {
   #handlePointChange = (updatedPoint) => {
     this.#points = updatePoint(this.#points, updatedPoint);
     this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
+  };
+
+  #handleModeChange = () => {
+    this.#pointPresenter.forEach((point) => point.resetView());
   };
 
   init(listContainer, filterContainer, points){

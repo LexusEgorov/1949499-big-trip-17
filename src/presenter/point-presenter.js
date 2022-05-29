@@ -2,16 +2,26 @@ import { remove, render, replace } from '../framework/render';
 import FormEditView from '../view/form-edit-view';
 import RoutePointView from '../view/route-point-view';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 export default class PointPresenter{
   #pointComponent = null;
   #pointEditComponent = null;
+
+  #changeMode = null;
   #listContainer = null;
   #updateData = null;
+
+  #mode = Mode.DEFAULT;
   #point = null;
 
-  constructor(list, updateData){
+  constructor(list, updateData, changeMode){
     this.#listContainer = list;
     this.#updateData = updateData;
+    this.#changeMode = changeMode;
   }
 
   init(point){
@@ -30,15 +40,9 @@ export default class PointPresenter{
 
     this.#pointComponent.setStarClickHandler(this.#handleStarClick);
 
-    this.#pointEditComponent.setPointClickHandler(() => {
-      this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
-    });
+    this.#pointEditComponent.setPointClickHandler(() => this.#replaceFormToPoint());
 
-    this.#pointEditComponent.setSubmitHandler(() => {
-      this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
-    });
+    this.#pointEditComponent.setSubmitHandler(() => this.#replaceFormToPoint());
 
 
     if(prevPointComponent === null || prevPointEditComponent === null){
@@ -46,11 +50,11 @@ export default class PointPresenter{
       return;
     }
 
-    if(this.#listContainer.element.contains(prevPointComponent.element)){
+    if(this.#mode === Mode.DEFAULT){
       replace(this.#pointComponent, prevPointComponent);
     }
 
-    if(this.#listContainer.element.contains(prevPointEditComponent.element)){
+    if(this.#mode === Mode.EDITING){
       replace(this.#pointEditComponent, prevPointEditComponent);
     }
 
@@ -63,12 +67,22 @@ export default class PointPresenter{
     remove(this.#pointEditComponent);
   }
 
+  resetView(){
+    if (this.#mode !== Mode.DEFAULT){
+      this.#replaceFormToPoint();
+    }
+  }
+
   #replacePointToForm(){
     this.#listContainer.element.replaceChild(this.#pointEditComponent.element, this.#pointComponent.element);
+    this.#changeMode();
+    this.#mode = Mode.EDITING;
   }
 
   #replaceFormToPoint(){
     this.#listContainer.element.replaceChild(this.#pointComponent.element, this.#pointEditComponent.element);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #handleStarClick = () => {
