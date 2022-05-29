@@ -21,7 +21,7 @@ const getOffers = (offers, selectedOffers) => {
 };
 
 const getPointTemplate = (point, offers, selectedOffers) => {
-  const {type, dateFrom, dateTo, destination, basePrice} = point;
+  const {type, dateFrom, dateTo, destination, basePrice, isFavorite} = point;
   return `
   <li class="trip-events__item">
   <div class="event">
@@ -43,7 +43,7 @@ const getPointTemplate = (point, offers, selectedOffers) => {
     </p>
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">${getOffers(offers, selectedOffers)}</ul>
-    <button class="event__favorite-btn event__favorite-btn--active" type="button">
+    <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
       <span class="visually-hidden">Add to favorite</span>
       <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
         <path
@@ -72,6 +72,16 @@ export default class RoutePointView extends AbstractView{
   get template(){
     return getPointTemplate(this.#point, this.#offers, this.#selectedOffers);
   }
+
+  setStarClickHandler = (cb) => {
+    this._callback.starClick = cb;
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#starClickHandler);
+  };
+
+  #starClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.starClick();
+  };
 
   setEditClickHandler = (cb) => {
     this._callback.editClick = cb;

@@ -41,8 +41,29 @@ const getTimeDifference = (dateFrom, dateTo) => {
   return `${days}D ${hours}H ${minutes}M`;
 };
 
+function generateId(){
+  let id = 1;
+  return function(){
+    return id++;
+  };
+}
+
+const updatePoint = (points, update) => {
+  const index = points.findIndex((point) => point.id === update.id);
+
+  if (index === -1) {
+    return points;
+  }
+
+  return [...points.slice(0, index), update, ...points.slice(index + 1)];
+};
+
+const generator = generateId();
+
 export {
   getRandomInteger,
   getTimeDifference,
   getCheck,
+  generator,
+  updatePoint,
 };

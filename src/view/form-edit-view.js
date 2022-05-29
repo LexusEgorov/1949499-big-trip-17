@@ -8,8 +8,8 @@ import dayjs from 'dayjs';
 
 const getOfferTemplate = (point, offer) => `
 <div class="event__offer-selector">
-<input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-${offer.id}" type="checkbox" name="event-offer-luggage" ${getCheck(offer.id, point.offers)}>
-<label class="event__offer-label" for="event-offer-luggage-${offer.id}">
+<input class="event__offer-checkbox  visually-hidden" id="event-offer-${point.id}-${offer.id}" type="checkbox" name="event-offer" ${getCheck(offer.id, point.offers)}>
+<label class="event__offer-label" for="event-offer-${point.id}-${offer.id}">
   <span class="event__offer-title">${offer.title}</span>
   &plus;&euro;&nbsp;
   <span class="event__offer-price">${offer.price}</span>
