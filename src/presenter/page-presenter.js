@@ -101,7 +101,6 @@ export default class PagePresenter {
 
   init(listContainer, filterContainer, points){
     this.#points = points.sort(sortByDate);
-    console.log(this.#points);
     this.#sourcedPoints = [...points];
     this.#listContainer = listContainer;
     this.#filterContainer = filterContainer;
