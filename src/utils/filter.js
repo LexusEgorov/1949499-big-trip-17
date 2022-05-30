@@ -1,15 +1,12 @@
 import dayjs from 'dayjs';
 
-const isDisabled = (count) => {
-  if(count <= 0){
-    return 'disabled=""';
-  }
-  return '';
-};
+const MESSAGES_MAP = new Map([
+  ['everything', 'Click New Event to create your first point'],
+  ['past', 'There are no past events now'],
+  ['future', 'There are no future events now'],
+]);
 
 const isFuture = (date) => (date.diff(dayjs()) > 0);
-
-const isDefault = (name) => name === 'everything' ? 'checked' : '';
 
 const FilterType = {
   EVERYTHING: 'everything',
@@ -24,7 +21,6 @@ const filter = {
 };
 
 export {
-  isDisabled,
-  isDefault,
+  MESSAGES_MAP,
   filter,
 };

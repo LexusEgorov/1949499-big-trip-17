@@ -1,4 +1,5 @@
 import {
+  generator,
   getRandomInteger,
 } from '../utils/util';
 
@@ -36,6 +37,7 @@ export const generatePoint = () => {
     basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
     dateFrom: getDateFrom(),
     dateTo: getDateTo(),
+    id: generator(),
     destination: getDestination(),
     isFavorite: Boolean(getRandomInteger(0, 1)),
     type: type,

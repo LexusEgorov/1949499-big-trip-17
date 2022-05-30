@@ -1,112 +1,87 @@
 import SortView from '../view/sort-view.js';
 import PointsListView from '../view/points-list-view.js';
-import RoutePointView from '../view/route-point-view.js';
-import FormEditView from '../view/form-edit-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
 
 import { generateFilters } from '../fish/filter.js';
 import { render } from '../framework/render';
-
-const MAX_COUNT_POINTS = 3;
-
-const MESSAGES_MAP = new Map([
-  ['everything', 'Click New Event to create your first point'],
-  ['past', 'There are no past events now'],
-  ['future', 'There are no future events now'],
-]);
+import { MESSAGES_MAP } from '../utils/filter.js';
+import { updatePoint } from '../utils/util.js';
+import PointPresenter from './point-presenter.js';
 
 export default class PagePresenter {
-  #listComponent = new PointsListView();
-  #sortComponent = new SortView();
-  #filtersComponent = null;
-  #pointsData = null;
+  #list = new PointsListView();
+  #sort = new SortView();
+  #pointPresenter = new Map();
 
-  constructor(pointsData){
-    this.#pointsData = pointsData;
-    this.#filtersComponent = new FilterView(generateFilters(pointsData));
-  }
+  #filter = null;
+  #points = null;
+  #listContainer = null;
+  #filterContainer = null;
 
-  #renderMessage(){
-    const getMessage = () => {
-      const checkedFilter = this.#filtersComponent.element.querySelector(['input:checked']).value;
-      return MESSAGES_MAP.get(checkedFilter);
-    };
+  #renderFilter(){
+    this.#filter = new FilterView(generateFilters(this.#points));
+    render(this.#filter, this.#filterContainer);
 
-    if(this.#listComponent.element.children.length === 0){
-      render(new EmptyListView(getMessage()), this.#listComponent.element);
-    }
-    else{
-      this.#listComponent.element.replaceChild(new EmptyListView(getMessage()).element, this.#listComponent.element.firstChild);
-    }
-
-  }
-
-  #renderPoint(pointData){
-    const pointComponent = new RoutePointView(pointData);
-    const editComponent = new FormEditView(pointData);
-
-    const replaceFormToPoint = () => {
-      this.#listComponent.element.replaceChild(pointComponent.element, editComponent.element);
-    };
-
-    const replacePointToForm = () => {
-      this.#listComponent.element.replaceChild(editComponent.element, pointComponent.element);
-    };
-
-    const escKeyDownHandler = (evt) =>{
-      if(evt.key === 'Escape' || evt.key === 'Esc'){
-        evt.preventDefault();
-        document.removeEventListener('keydown', escKeyDownHandler);
-        replaceFormToPoint();
-      }
-    };
-
-    pointComponent.setEditClickHandler(() => {
-      replacePointToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
-    });
-
-    editComponent.setPointClickHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    });
-
-    editComponent.setSubmitHandler(() => {
-      replaceFormToPoint();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    });
-
-    render(pointComponent, this.#listComponent.element);
-  }
-
-  #isEmpty(){
-
-    if(this.#pointsData.length === 0){
-      return true;
-    }
-
-    return false;
-  }
-
-  init(listContainer, headerContainer){
-    render(this.#filtersComponent, headerContainer);
-    render(this.#sortComponent, listContainer);
-    render(this.#listComponent, listContainer);
-
-    this.#filtersComponent.setChangeHandler(() => {
-      if(this.#isEmpty()){
-        this.#renderMessage();
+    this.#filter.element.addEventListener('change', ()=>{
+      if(this.#points.length <= 0){
+        this.#clearList();
+        this.#renderNoPoints();
       }
     });
+  }
 
-    if(this.#isEmpty()){
-      this.#renderMessage();
+  #renderSort(){
+    render(this.#sort, this.#listContainer);
+  }
+
+  #renderPoint(point){
+    const pointPresenter = new PointPresenter(this.#list, this.#handlePointChange, this.#handleModeChange);
+    pointPresenter.init(point);
+    this.#pointPresenter.set(point.id, pointPresenter);
+  }
+
+  #renderPoints(){
+    for(const point of this.#points){
+      this.#renderPoint(point);
     }
-    else{
-      for (let i = 0; i < MAX_COUNT_POINTS; i++) {
-        this.#renderPoint(this.#pointsData[i]);
-      }
+  }
+
+  #clearList(){
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
+  }
+
+  #renderList(){
+    render(this.#list, this.#listContainer);
+    this.#renderPoints();
+  }
+
+  #renderNoPoints(){
+    const checkedFilter = this.#filter.element.querySelector(['input:checked']).value;
+    const messageComponent = new EmptyListView(MESSAGES_MAP.get(checkedFilter));
+    render(messageComponent, this.#listContainer);
+  }
+
+  #handlePointChange = (updatedPoint) => {
+    this.#points = updatePoint(this.#points, updatedPoint);
+    this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
+  };
+
+  #handleModeChange = () => {
+    this.#pointPresenter.forEach((point) => point.resetView());
+  };
+
+  init(listContainer, filterContainer, points){
+    this.#points = points;
+    this.#listContainer = listContainer;
+    this.#filterContainer = filterContainer;
+    this.#renderFilter();
+    if(points.length > 0){
+      this.#renderSort();
+      this.#renderList();
+    } else {
+      this.#renderNoPoints();
     }
   }
 }

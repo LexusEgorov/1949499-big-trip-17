@@ -11,7 +11,7 @@ const getRandomInteger = (from = 0, to = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const isChecked = (offer, offers) => {
+const getCheck = (offer, offers) => {
   let check = '';
 
   if (offers.some((element) => element === offer)) {
@@ -41,8 +41,29 @@ const getTimeDifference = (dateFrom, dateTo) => {
   return `${days}D ${hours}H ${minutes}M`;
 };
 
+function generateId(){
+  let id = 1;
+  return function(){
+    return id++;
+  };
+}
+
+const updatePoint = (points, update) => {
+  const index = points.findIndex((point) => point.id === update.id);
+
+  if (index === -1) {
+    return points;
+  }
+
+  return [...points.slice(0, index), update, ...points.slice(index + 1)];
+};
+
+const generator = generateId();
+
 export {
   getRandomInteger,
   getTimeDifference,
-  isChecked,
+  getCheck,
+  generator,
+  updatePoint,
 };

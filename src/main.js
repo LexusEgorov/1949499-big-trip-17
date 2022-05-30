@@ -2,9 +2,9 @@ import PagePresenter from './presenter/page-presenter.js';
 import PointModel from './model/point-model.js';
 
 const siteFilter = document.querySelector('.trip-controls__filters');
-const siteEvents = document.querySelector('.trip-events');
+const tripEvents = document.querySelector('.trip-events');
 
-const pointsModel = new PointModel().points;
-const listPresenter = new PagePresenter(pointsModel);
+const points = new PointModel().points;
+const pagePresenter = new PagePresenter();
 
-listPresenter.init(siteEvents, siteFilter);
+pagePresenter.init(tripEvents, siteFilter, points);
