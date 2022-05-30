@@ -41,10 +41,12 @@ const OFFERS = [
   },
 ];
 
+const eventTypes = [];
 const mapOffers = new Map();
 
 OFFERS.forEach((offer) => {
   mapOffers.set(offer.type, offer);
+  eventTypes.push(offer.type);
 });
 
-export {mapOffers};
+export {mapOffers, eventTypes};
