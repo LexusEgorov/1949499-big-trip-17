@@ -6,8 +6,9 @@ import FilterView from '../view/filter-view.js';
 import { generateFilters } from '../fish/filter.js';
 import { render } from '../framework/render';
 import { MESSAGES_MAP } from '../utils/filter.js';
-import { updatePoint } from '../utils/util.js';
+import { SortType, updatePoint } from '../utils/util.js';
 import PointPresenter from './point-presenter.js';
+import { sortByDuration, sortByPrice, sortByDate } from '../utils/sort.js';
 
 export default class PagePresenter {
   #list = new PointsListView();
@@ -18,12 +19,14 @@ export default class PagePresenter {
   #points = null;
   #listContainer = null;
   #filterContainer = null;
+  #currentSortType = SortType.DEFAULT;
+  #sourcedPoints = [];
 
   #renderFilter(){
     this.#filter = new FilterView(generateFilters(this.#points));
     render(this.#filter, this.#filterContainer);
 
-    this.#filter.element.addEventListener('change', ()=>{
+    this.#filter.element.addEventListener('change', () => {
       if(this.#points.length <= 0){
         this.#clearList();
         this.#renderNoPoints();
@@ -33,6 +36,7 @@ export default class PagePresenter {
 
   #renderSort(){
     render(this.#sort, this.#listContainer);
+    this.#sort.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
   #renderPoint(point){
@@ -72,8 +76,32 @@ export default class PagePresenter {
     this.#pointPresenter.forEach((point) => point.resetView());
   };
 
+  #sortPoints = (sortType) => {
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#points.sort(sortByPrice);
+        break;
+      case SortType.TIME:
+        this.#points.sort(sortByDuration);
+        break;
+      default:
+        this.#points = [...this.#sourcedPoints];
+    }
+
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if(this.#currentSortType !== sortType){
+      this.#sortPoints(sortType);
+      this.#clearList();
+      this.#renderPoints();
+    }
+  };
+
   init(listContainer, filterContainer, points){
-    this.#points = points;
+    this.#points = points.sort(sortByDate);
+    this.#sourcedPoints = [...points];
     this.#listContainer = listContainer;
     this.#filterContainer = filterContainer;
     this.#renderFilter();
