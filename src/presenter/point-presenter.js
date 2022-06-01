@@ -31,19 +31,25 @@ export default class PointPresenter{
     const prevPointEditComponent = this.#pointEditComponent;
 
     this.#pointComponent = new RoutePointView(point);
-    this.#pointEditComponent = new FormEditView(point);
 
     this.#pointComponent.setEditClickHandler(() => {
+      this.#pointEditComponent = new FormEditView(point);
+
+      this.#pointEditComponent.setPointClickHandler(() => {
+        this.#replaceFormToPoint();
+        remove(this.#pointEditComponent);
+      });
+
+      this.#pointEditComponent.setSubmitHandler(() => {
+        this.#replaceFormToPoint();
+        remove(this.#pointEditComponent);
+      });
+
       this.#replacePointToForm();
       document.addEventListener('keydown', this.#escKeyDownHandler);
     });
 
     this.#pointComponent.setStarClickHandler(this.#handleStarClick);
-
-    this.#pointEditComponent.setPointClickHandler(() => this.#replaceFormToPoint());
-
-    this.#pointEditComponent.setSubmitHandler(() => this.#replaceFormToPoint());
-
 
     if(prevPointComponent === null || prevPointEditComponent === null){
       render(this.#pointComponent, this.#listContainer.element);
@@ -95,6 +101,7 @@ export default class PointPresenter{
       evt.preventDefault();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
       this.#replaceFormToPoint();
+      remove(this.#pointEditComponent);
     }
   };
 }
