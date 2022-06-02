@@ -4,6 +4,10 @@ import { mapDestinations, eventDestinations } from '../fish/destinations.js';
 import { mapOffers, eventTypes } from '../fish/offers';
 
 import { getCheck } from '../utils/util.js';
+
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+
 import dayjs from 'dayjs';
 
 const getPictureTemplate = ({src}) => `<img class="event__photo" src=${src} alt="Event photo"></img>`;
@@ -53,7 +57,7 @@ const getEventDestination = (destination) => {
 };
 
 const getEditTemplate = (state) => {
-  const {type, destination, dateFrom, dateTo, basePrice} = state;
+  const {type, destination, dateFrom, dateTo, basePrice, id} = state;
   const offers = mapOffers.get(type).offers;
   const destinations = eventDestinations;
   return `
@@ -87,21 +91,21 @@ const getEditTemplate = (state) => {
       </div>
 
       <div class="event__field-group  event__field-group--time">
-        <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time"
-          value="${dayjs(dateFrom).format('DD/MM/YY HH:mm')}">
+        <label class="visually-hidden" for="event-start-time-${id}">From</label>
+        <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time"
+          value="${dayjs(dateFrom).format('DD/MM/YYYY HH:mm')}">
         &mdash;
-        <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time"
-          value="${dayjs(dateTo).format('DD/MM/YY HH:mm')}">
+        <label class="visually-hidden" for="event-end-time-${id}">To</label>
+        <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time"
+          value="${dayjs(dateTo).format('DD/MM/YYYY HH:mm')}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
-        <label class="event__label" for="event-price-1">
+        <label class="event__label" for="event-price-${id}">
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price"
+        <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price"
           value=${basePrice}>
       </div>
 
@@ -127,12 +131,28 @@ const getEditTemplate = (state) => {
 };
 
 export default class FormEditView extends AbstractStatefulView{
+  #datepickerStart = null;
+  #datepickerEnd = null;
 
   constructor(point){
     super();
     this._state = FormEditView.parsePointToState(point);
     this.#setInnerHandlers();
   }
+
+  removeElement = () => {
+    super.removeElement();
+
+    if(this.#datepickerStart){
+      this.#datepickerStart.destroy();
+      this.#datepickerStart = null;
+    }
+
+    if(this.#datepickerEnd){
+      this.#datepickerEnd.destroy();
+      this.#datepickerEnd = null;
+    }
+  };
 
   _restoreHandlers = () => {
     this.#setInnerHandlers();
@@ -159,6 +179,37 @@ export default class FormEditView extends AbstractStatefulView{
       .addEventListener('change', this.#changeTypeHandler);
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#changeDestinationHandler);
+    this.#setDatepicker();
+  };
+
+  #setDatepicker = () => {
+    this.#datepickerStart = flatpickr(
+      this.element.querySelector(`#event-start-time-${this._state.id}`),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#changeDateFromHandler,
+      }
+    );
+
+    this.#datepickerEnd = flatpickr(
+      this.element.querySelector(`#event-end-time-${this._state.id}`),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._state.dateTo,
+        onChange: this.#changeDateToHandler,
+      }
+    );
+  };
+
+  #changeDateFromHandler = ([userDate]) => {
+    this.updateElement({dateFrom: userDate});
+  };
+
+  #changeDateToHandler = ([userDate]) => {
+    this.updateElement({dateFrom: userDate});
   };
 
   #changeTypeHandler = (evt) => {
