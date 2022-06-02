@@ -188,6 +188,7 @@ export default class FormEditView extends AbstractStatefulView{
       {
         enableTime: true,
         dateFormat: 'd/m/Y H:i',
+        maxDate: this._state.dateTo,
         defaultDate: this._state.dateFrom,
         onChange: this.#changeDateFromHandler,
       }
@@ -198,6 +199,7 @@ export default class FormEditView extends AbstractStatefulView{
       {
         enableTime: true,
         dateFormat: 'd/m/Y H:i',
+        minDate: this._state.dateFrom,
         defaultDate: this._state.dateTo,
         onChange: this.#changeDateToHandler,
       }
@@ -209,7 +211,7 @@ export default class FormEditView extends AbstractStatefulView{
   };
 
   #changeDateToHandler = ([userDate]) => {
-    this.updateElement({dateFrom: userDate});
+    this.updateElement({dateTo: userDate});
   };
 
   #changeTypeHandler = (evt) => {
