@@ -27,24 +27,36 @@ const getCheck = (offer, offers) => {
 };
 
 const getTimeDifference = (dateFrom, dateTo) => {
-  const dateStart = dayjs(dateFrom);
-  const dateEnd = dayjs(dateTo);
-  const hoursDifference = dateEnd.diff(dateStart, 'hours');
-  let minutes = dateEnd.diff(dateStart, 'minutes');
-  let days = Math.floor(minutes / DAY_TO_MINUTES);
-  minutes -= days * DAY_TO_MINUTES;
-  let hours = Math.floor((minutes / HOUR_TO_MINUTES));
-  minutes -= hours * HOUR_TO_MINUTES;
-  days = days < FORMAT ? `0${days}` : days;
-  hours = hours < FORMAT ? `0${hours}` : hours;
-  minutes = minutes < FORMAT ? `0${minutes}` : minutes;
-  if(hoursDifference < 1){
-    return `${minutes}M`;
+  const from = dayjs(dateFrom);
+  const to = dayjs(dateTo);
+
+  const resultDifference = {
+    days: '',
+    hours: '',
+    minutes: '',
+  };
+
+  let minutesDifference = to.diff(from, 'minutes');
+  if(minutesDifference < 0){
+    return;
   }
-  if(hoursDifference < 24){
-    return `${hours}H ${minutes}M`;
+
+  const daysDifference = Math.floor(minutesDifference / DAY_TO_MINUTES);
+  minutesDifference = minutesDifference % DAY_TO_MINUTES;
+  const hoursDifference = Math.floor(minutesDifference / HOUR_TO_MINUTES);
+  minutesDifference = minutesDifference % HOUR_TO_MINUTES;
+
+  resultDifference.days = daysDifference < FORMAT ? `0${daysDifference}D` : `${daysDifference}D`;
+  resultDifference.hours = hoursDifference < FORMAT ? `0${hoursDifference}H` : `${hoursDifference}H`;
+  resultDifference.minutes = minutesDifference < FORMAT ? `0${minutesDifference}M` : `${minutesDifference}M`;
+
+  if(daysDifference === 0){
+    if(hoursDifference === 0){
+      return `${resultDifference.minutes}`;
+    }
+    return `${resultDifference.hours} ${resultDifference.minutes}`;
   }
-  return `${days}D ${hours}H ${minutes}M`;
+  return `${resultDifference.days} ${resultDifference.hours} ${resultDifference.minutes}`;
 };
 
 function generateId(){
