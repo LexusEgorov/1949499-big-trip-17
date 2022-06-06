@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { getTimeDifference } from '../utils/util';
-import { mapOffers } from '../fish/offers';
 import AbstractView from '../framework/view/abstract-view';
 
 const getOfferTemplate = ({title, price}) =>
@@ -62,7 +61,7 @@ export default class RoutePointView extends AbstractView{
   #offers = null;
   #selectedOffers = null;
 
-  constructor(point) {
+  constructor(point, {mapOffers}) {
     super();
     this.#point = point;
     this.#offers = mapOffers.get(point.type).offers;

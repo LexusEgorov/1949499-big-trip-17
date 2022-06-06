@@ -1,8 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
-import { mapDestinations, eventDestinations } from '../fish/destinations.js';
-import { mapOffers, eventTypes } from '../fish/offers';
-
 import { getCheck } from '../utils/util.js';
 
 import flatpickr from 'flatpickr';
@@ -16,8 +13,8 @@ const getPictures = (pictures) => pictures.map((picture) => getPictureTemplate(p
 
 const getOfferTemplate = (state, offer) => `
 <div class="event__offer-selector">
-<input class="event__offer-checkbox  visually-hidden" id="event-offer-${state.id}-${offer.id}" type="checkbox" name="event-offer" ${getCheck(offer.id, state.offers)}>
-<label class="event__offer-label" for="event-offer-${state.id}-${offer.id}">
+<input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" value="${offer.id}" name="event-offer" ${getCheck(offer.id, state.offers)}>
+<label class="event__offer-label" for="event-offer-${offer.id}">
   <span class="event__offer-title">${offer.title}</span>
   &plus;&euro;&nbsp;
   <span class="event__offer-price">${offer.price}</span>
@@ -28,9 +25,9 @@ const getOffers = (state, offers) => offers.map((offer) => getOfferTemplate(stat
 
 const getEventTypeItemTemplate = (type, stateType) => `
 <div class="event__type-item">
-<input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type"
+<input id="event-type-${type}" class="event__type-input  visually-hidden" type="radio" name="event-type"
   value="${type}" ${type === stateType ? 'checked' : '' }>
-<label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
+<label class="event__type-label  event__type-label--${type}" for="event-type-${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</label>
 </div>`;
 
 const getEventTypeItems = (types, stateType) => types.map((type) => getEventTypeItemTemplate(type, stateType)).join('');
@@ -39,7 +36,7 @@ const getEventDestinationTemplate = (destination) => `<option value="${destinati
 
 const getEventDestinations = (destinations) => destinations.map((destination) => getEventDestinationTemplate(destination)).join('');
 
-const getEventDestination = (destination) => {
+const getEventDestination = (destination, mapDestinations) => {
   if(!mapDestinations.get(destination)){
     return '';
   }
@@ -56,7 +53,7 @@ const getEventDestination = (destination) => {
   `;
 };
 
-const getEditTemplate = (state) => {
+const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, eventTypes}) => {
   const {type, destination, dateFrom, dateTo, basePrice, id} = state;
   const offers = mapOffers.get(type).offers;
   const destinations = eventDestinations;
@@ -123,21 +120,27 @@ const getEditTemplate = (state) => {
         ${getOffers(state, offers)}
         </div>
       </section>
-      ${getEventDestination(destination)}
+      ${getEventDestination(destination, mapDestinations)}
     </section>
   </form>
 </li>
   `;
 };
 
-export default class FormEditView extends AbstractStatefulView{
+export default class FormCreateEditView extends AbstractStatefulView{
   #datepickerStart = null;
   #datepickerEnd = null;
+  #additionData = null;
 
-  constructor(point){
+  constructor(point, additionData){
     super();
-    this._state = FormEditView.parsePointToState(point);
+    this.#additionData = {...additionData};
+    this._state = FormCreateEditView.parsePointToState(point);
     this.#setInnerHandlers();
+  }
+
+  get point (){
+    return FormCreateEditView.parseStateToPoint(this._state);
   }
 
   removeElement = () => {
@@ -161,12 +164,16 @@ export default class FormEditView extends AbstractStatefulView{
   };
 
   get template() {
-    return getEditTemplate(this._state);
+    return getEditTemplate(this._state, this.#additionData);
   }
 
-  static parsePointToState = (point) => ({...point});
+  static parsePointToState = (point) => ({...point,
+    offers: new Set(point.offers),
+  });
 
-  static parseStateToPoint = (state) => ({...state});
+  static parseStateToPoint = (state) => ({...state,
+    offers: [...state.offers],
+  });
 
 
   setSubmitHandler = (cb) => {
@@ -180,6 +187,10 @@ export default class FormEditView extends AbstractStatefulView{
     this.element.querySelector('.event__input--destination')
       .addEventListener('change', this.#changeDestinationHandler);
     this.#setDatepicker();
+    this.element.querySelector(`#event-price-${this._state.id}`)
+      .addEventListener('change', this.#changePriceHandler);
+    this.element.querySelector('.event__available-offers')
+      .addEventListener('change', this.#changeOfferHandler);
   };
 
   #setDatepicker = () => {
@@ -214,10 +225,28 @@ export default class FormEditView extends AbstractStatefulView{
     this.updateElement({dateTo: userDate});
   };
 
+  #changeOfferHandler = (evt) => {
+    evt.preventDefault();
+    const offer = Number(evt.target.value);
+    if(this._state.offers.has(offer)){
+      this._state.offers.delete(offer);
+    }
+    else{
+      this._state.offers.add(offer);
+    }
+    this.updateElement(this._state);
+  };
+
+  #changePriceHandler = (evt) => {
+    evt.preventDefault();
+    this._state.basePrice = Number(evt.target.value);
+    this.updateElement(this._state);
+  };
+
   #changeTypeHandler = (evt) => {
     evt.preventDefault();
     this._state.type = evt.target.value;
-    this._state.offers = [];
+    this._state.offers.clear();
     this.updateElement(this._state);
   };
 

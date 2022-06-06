@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import { SortType } from '../utils/util';
+import { SortType } from '../utils/sort';
 
 export default class SortView extends AbstractView{
   setSortTypeChangeHandler = (cb) => {

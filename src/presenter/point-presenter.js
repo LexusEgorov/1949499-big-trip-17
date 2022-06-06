@@ -1,5 +1,8 @@
+import OffersModel from '../model/offers-model';
+import DestinationsModel from '../model/destinations-model';
+
 import { remove, render, replace } from '../framework/render';
-import FormEditView from '../view/form-edit-view';
+import FormCreateEditView from '../view/form-create-edit-view';
 import RoutePointView from '../view/route-point-view';
 
 const Mode = {
@@ -8,6 +11,9 @@ const Mode = {
 };
 
 export default class PointPresenter{
+  #offersModel = new OffersModel();
+  #destinationsModel = new DestinationsModel();
+
   #pointComponent = null;
   #pointEditComponent = null;
 
@@ -18,22 +24,29 @@ export default class PointPresenter{
   #mode = Mode.DEFAULT;
   #point = null;
 
+  #additionData = null;
+
   constructor(list, updateData, changeMode){
     this.#listContainer = list;
     this.#updateData = updateData;
     this.#changeMode = changeMode;
+    this.#additionData = {
+      mapDestinations: this.#destinationsModel.mapDestinations,
+      mapOffers: this.#offersModel.mapOffers,
+      eventTypes: this.#offersModel.eventTypes,
+      eventDestinations: this.#destinationsModel.eventDestinations,
+    };
   }
 
   init(point){
     this.#point = point;
-
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
 
-    this.#pointComponent = new RoutePointView(point);
+    this.#pointComponent = new RoutePointView(point, this.#additionData);
 
     this.#pointComponent.setEditClickHandler(() => {
-      this.#pointEditComponent = new FormEditView(point);
+      this.#pointEditComponent = new FormCreateEditView(point, this.#additionData);
 
       this.#pointEditComponent.setPointClickHandler(() => {
         this.#replaceFormToPoint();
@@ -41,8 +54,10 @@ export default class PointPresenter{
       });
 
       this.#pointEditComponent.setSubmitHandler(() => {
+        this.#point = this.#pointEditComponent.point;
         this.#replaceFormToPoint();
         remove(this.#pointEditComponent);
+        this.#updateData(this.#point);
       });
 
       this.#replacePointToForm();
@@ -51,7 +66,7 @@ export default class PointPresenter{
 
     this.#pointComponent.setStarClickHandler(this.#handleStarClick);
 
-    if(prevPointComponent === null || prevPointEditComponent === null){
+    if(prevPointComponent === null){
       render(this.#pointComponent, this.#listContainer.element);
       return;
     }

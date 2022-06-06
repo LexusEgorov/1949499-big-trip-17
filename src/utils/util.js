@@ -4,12 +4,6 @@ const HOUR_TO_MINUTES = 60;
 const DAY_TO_MINUTES = 1440;
 const FORMAT = 10;
 
-const SortType = {
-  DEFAULT: 'default',
-  TIME: 'time',
-  PRICE: 'price',
-};
-
 const getRandomInteger = (from = 0, to = 1) => {
   const lower = Math.floor(Math.min(from, to));
   const upper = Math.ceil(Math.max(from, to));
@@ -17,14 +11,7 @@ const getRandomInteger = (from = 0, to = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const getCheck = (offer, offers) => {
-  let check = '';
-
-  if (offers.some((element) => element === offer)) {
-    check = 'checked';
-  }
-  return check;
-};
+const getCheck = (offer, offersSet) => offersSet.has(offer) ? 'checked' : '';
 
 const getTimeDifference = (dateFrom, dateTo) => {
   const from = dayjs(dateFrom);
@@ -84,5 +71,4 @@ export {
   getCheck,
   generator,
   updatePoint,
-  SortType,
 };
