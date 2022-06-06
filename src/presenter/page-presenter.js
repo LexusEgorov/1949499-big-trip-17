@@ -12,6 +12,7 @@ import {
 } from '../fish/filter.js';
 
 import {
+  remove,
   render
 } from '../framework/render';
 
@@ -26,40 +27,43 @@ import {
 
 export default class PagePresenter {
   #pointsModel = new PointsModel();
-  #list = new PointsListView();
   #sort = new SortView();
   #pointPresenter = new Map();
 
+  #list = null;
   #filter = null;
-  #points = null;
   #listContainer = null;
   #filterContainer = null;
   #currentSortType = SortType.DEFAULT;
-  #sourcedPoints = [...this.#pointsModel.points];
 
   constructor(listContainer, filterContainer){
-    this.#points = [...this.#sourcedPoints].sort(SortFunction.DATE);
     this.#listContainer = listContainer;
     this.#filterContainer = filterContainer;
   }
 
+  get points() {
+    switch (this.#currentSortType){
+      case SortType.PRICE:
+        return [...this.#pointsModel.points].sort(SortFunction.PRICE);
+      case SortType.TIME:
+        return [...this.#pointsModel.points].sort(SortFunction.DURATION);
+    }
+
+    return this.#pointsModel.points;
+  }
+
   init () {
     this.#renderFilter();
-    if (this.#points.length > 0) {
-      this.#renderSort();
-      this.#renderList();
-    } else {
-      this.#renderNoPoints();
-    }
+    this.#renderSort();
+    this.#renderList();
   }
 
   #renderFilter() {
-    this.#filter = new FilterView(generateFilters(this.#points));
+    this.#filter = new FilterView(generateFilters(this.points));
     render(this.#filter, this.#filterContainer);
 
     this.#filter.element.addEventListener('change', () => {
-      if (this.#points.length <= 0) {
-        this.#clearList();
+      if(this.points.length <= 0){
         this.#renderNoPoints();
       }
     });
@@ -77,7 +81,7 @@ export default class PagePresenter {
   }
 
   #renderPoints() {
-    for (const point of this.#points) {
+    for (const point of this.points) {
       this.#renderPoint(point);
     }
   }
@@ -88,11 +92,17 @@ export default class PagePresenter {
   }
 
   #renderList() {
+    this.#list = new PointsListView();
     render(this.#list, this.#listContainer);
     this.#renderPoints();
   }
 
   #renderNoPoints() {
+    if(this.#list){
+      this.#clearList();
+      remove(this.#list);
+      this.#list = null;
+    }
     const checkedFilter = this.#filter.element.querySelector(['input:checked']).value;
     const messageComponent = new EmptyListView(MESSAGES_MAP.get(checkedFilter));
     render(messageComponent, this.#listContainer);
@@ -100,8 +110,6 @@ export default class PagePresenter {
 
   #handlePointChange = (updatedPoint) => {
     this.#pointsModel.updatePoint(updatedPoint);
-    this.#sourcedPoints = [...this.#pointsModel.points];
-    this.#points = this.#sourcedPoints;
     this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
   };
 
@@ -109,24 +117,9 @@ export default class PagePresenter {
     this.#pointPresenter.forEach((point) => point.resetView());
   };
 
-  #sortPoints = (sortType) => {
-    switch (sortType) {
-      case SortType.PRICE:
-        this.#points.sort(SortFunction.PRICE);
-        break;
-      case SortType.TIME:
-        this.#points.sort(SortFunction.DURATION);
-        break;
-      default:
-        this.#points.sort(SortFunction.DATE);
-    }
-
-    this.#currentSortType = sortType;
-  };
-
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType !== sortType) {
-      this.#sortPoints(sortType);
+      this.#currentSortType = sortType;
       this.#clearList();
       this.#renderPoints();
     }

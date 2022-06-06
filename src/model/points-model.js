@@ -2,11 +2,13 @@ import {
   generatePoint
 } from '../fish/point.js';
 
+import Observable from '../framework/observable.js';
+
 import {
   updatePoint
 } from '../utils/util.js';
 
-export default class PointsModel {
+export default class PointsModel extends Observable{
   #points = Array.from({
     length: 3
   }, generatePoint);

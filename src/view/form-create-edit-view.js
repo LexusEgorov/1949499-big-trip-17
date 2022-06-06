@@ -127,6 +127,17 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
   `;
 };
 
+const EMPTY_POINT = {
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  id: 0,
+  destination: '',
+  isFavorite: false,
+  type: '',
+  offers: [],
+};
+
 export default class FormCreateEditView extends AbstractStatefulView{
   #datepickerStart = null;
   #datepickerEnd = null;
@@ -167,7 +178,7 @@ export default class FormCreateEditView extends AbstractStatefulView{
     return getEditTemplate(this._state, this.#additionData);
   }
 
-  static parsePointToState = (point) => ({...point,
+  static parsePointToState = (point = EMPTY_POINT) => ({...point,
     offers: new Set(point.offers),
   });
 
@@ -191,6 +202,8 @@ export default class FormCreateEditView extends AbstractStatefulView{
       .addEventListener('change', this.#changePriceHandler);
     this.element.querySelector('.event__available-offers')
       .addEventListener('change', this.#changeOfferHandler);
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deletePointHandler);
   };
 
   #setDatepicker = () => {
@@ -223,6 +236,10 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   #changeDateToHandler = ([userDate]) => {
     this.updateElement({dateTo: userDate});
+  };
+
+  #deletePointHandler = () => {
+
   };
 
   #changeOfferHandler = (evt) => {
