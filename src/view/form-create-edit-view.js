@@ -172,6 +172,7 @@ export default class FormCreateEditView extends AbstractStatefulView{
     this.#setInnerHandlers();
     this.setSubmitHandler(this._callback.submit);
     this.setPointClickHandler(this._callback.pointClick);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   get template() {
@@ -202,8 +203,6 @@ export default class FormCreateEditView extends AbstractStatefulView{
       .addEventListener('change', this.#changePriceHandler);
     this.element.querySelector('.event__available-offers')
       .addEventListener('change', this.#changeOfferHandler);
-    this.element.querySelector('.event__reset-btn')
-      .addEventListener('click', this.#deletePointHandler);
   };
 
   #setDatepicker = () => {
@@ -236,10 +235,6 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   #changeDateToHandler = ([userDate]) => {
     this.updateElement({dateTo: userDate});
-  };
-
-  #deletePointHandler = () => {
-
   };
 
   #changeOfferHandler = (evt) => {
@@ -278,7 +273,18 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   #submitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.submit();
+    this._callback.submit(FormCreateEditView.parseStateToPoint(this._state));
+  };
+
+  setDeleteClickHandler = (cb) => {
+    this._callback.deleteClick = cb;
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteClickHandler);
+  };
+
+  #deleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.deleteClick(FormCreateEditView.parseStateToPoint(this._state));
   };
 
   setPointClickHandler = (cb) => {

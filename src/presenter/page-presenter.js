@@ -7,30 +7,20 @@ import FilterView from '../view/filter-view.js';
 
 import PointPresenter from './point-presenter.js';
 
-import {
-  generateFilters
-} from '../fish/filter.js';
+import { generateFilters } from '../fish/filter.js';
 
-import {
-  remove,
-  render
-} from '../framework/render';
+import { remove, render } from '../framework/render';
 
-import {
-  MESSAGES_MAP
-} from '../utils/filter.js';
+import { MESSAGES_MAP, SortType, UpdateType, UserAction } from '../utils/const';
 
-import {
-  SortFunction,
-  SortType,
-} from '../utils/sort.js';
+import { SortFunction} from '../utils/sort.js';
 
 export default class PagePresenter {
   #pointsModel = new PointsModel();
-  #sort = new SortView();
+  #list = new PointsListView();
   #pointPresenter = new Map();
 
-  #list = null;
+  #sort = null;
   #filter = null;
   #listContainer = null;
   #filterContainer = null;
@@ -39,6 +29,8 @@ export default class PagePresenter {
   constructor(listContainer, filterContainer){
     this.#listContainer = listContainer;
     this.#filterContainer = filterContainer;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
@@ -53,9 +45,7 @@ export default class PagePresenter {
   }
 
   init () {
-    this.#renderFilter();
-    this.#renderSort();
-    this.#renderList();
+    this.#renderBoard();
   }
 
   #renderFilter() {
@@ -70,12 +60,13 @@ export default class PagePresenter {
   }
 
   #renderSort() {
+    this.#sort = new SortView(this.#currentSortType);
     render(this.#sort, this.#listContainer);
     this.#sort.setSortTypeChangeHandler(this.#handleSortTypeChange);
   }
 
   #renderPoint(point) {
-    const pointPresenter = new PointPresenter(this.#list, this.#handlePointChange, this.#handleModeChange);
+    const pointPresenter = new PointPresenter(this.#list, this.#handleViewAction, this.#handleModeChange);
     pointPresenter.init(point);
     this.#pointPresenter.set(point.id, pointPresenter);
   }
@@ -86,31 +77,63 @@ export default class PagePresenter {
     }
   }
 
-  #clearList() {
-    this.#pointPresenter.forEach((presenter) => presenter.destroy());
-    this.#pointPresenter.clear();
-  }
-
-  #renderList() {
-    this.#list = new PointsListView();
-    render(this.#list, this.#listContainer);
-    this.#renderPoints();
-  }
-
   #renderNoPoints() {
-    if(this.#list){
-      this.#clearList();
-      remove(this.#list);
-      this.#list = null;
-    }
     const checkedFilter = this.#filter.element.querySelector(['input:checked']).value;
     const messageComponent = new EmptyListView(MESSAGES_MAP.get(checkedFilter));
     render(messageComponent, this.#listContainer);
   }
 
-  #handlePointChange = (updatedPoint) => {
-    this.#pointsModel.updatePoint(updatedPoint);
-    this.#pointPresenter.get(updatedPoint.id).init(updatedPoint);
+  #clearBoard(resetSortType = false) {
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
+    remove(this.#sort);
+    remove(this.#list);
+    remove(this.#filter);
+    if(resetSortType){
+      this.#currentSortType = SortType.DEFAULT;
+    }
+  }
+
+  #renderBoard() {
+    if(this.points.length <= 0){
+      this.#renderNoPoints();
+    }
+    else{
+      this.#renderFilter();
+      this.#renderSort();
+      render(this.#list, this.#listContainer);
+      this.#renderPoints();
+    }
+  }
+
+  #handleModelEvent = (updateType, data) => {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#pointPresenter.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearBoard();
+        this.#renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearBoard(true);
+        this.#renderBoard();
+        break;
+    }
+  };
+
+  #handleViewAction = (actionType, updateType, update) => {
+    switch (actionType){
+      case UserAction.UPDATE_POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+      case UserAction.ADD_POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+    }
   };
 
   #handleModeChange = () => {
@@ -120,8 +143,8 @@ export default class PagePresenter {
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType !== sortType) {
       this.#currentSortType = sortType;
-      this.#clearList();
-      this.#renderPoints();
+      this.#clearBoard();
+      this.#renderBoard();
     }
   };
 }

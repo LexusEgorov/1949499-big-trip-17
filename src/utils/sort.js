@@ -6,13 +6,4 @@ const SortFunction = {
   DATE: (firstPoint, secondPoint) => dayjs(firstPoint.dateFrom).diff(dayjs(secondPoint.dateFrom)),
 };
 
-const SortType = {
-  DEFAULT: 'default',
-  TIME: 'time',
-  PRICE: 'price',
-};
-
-export {
-  SortFunction,
-  SortType,
-};
+export { SortFunction };

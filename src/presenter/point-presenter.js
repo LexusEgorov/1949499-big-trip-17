@@ -5,10 +5,8 @@ import { remove, render, replace } from '../framework/render';
 import FormCreateEditView from '../view/form-create-edit-view';
 import RoutePointView from '../view/route-point-view';
 
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
-};
+import { UpdateType, UserAction } from '../utils/const';
+import { Mode } from '../utils/const';
 
 export default class PointPresenter{
   #offersModel = new OffersModel();
@@ -53,18 +51,14 @@ export default class PointPresenter{
         remove(this.#pointEditComponent);
       });
 
-      this.#pointEditComponent.setSubmitHandler(() => {
-        this.#point = this.#pointEditComponent.point;
-        this.#replaceFormToPoint();
-        remove(this.#pointEditComponent);
-        this.#updateData(this.#point);
-      });
+      this.#pointEditComponent.setSubmitHandler(this.#submitClickHandler);
+      this.#pointEditComponent.setDeleteClickHandler(this.#deleteClickHandler);
+      document.addEventListener('keydown', this.#escKeyDownHandler);
 
       this.#replacePointToForm();
-      document.addEventListener('keydown', this.#escKeyDownHandler);
     });
 
-    this.#pointComponent.setStarClickHandler(this.#handleStarClick);
+    this.#pointComponent.setStarClickHandler(this.#starClickHandler);
 
     if(prevPointComponent === null){
       render(this.#pointComponent, this.#listContainer.element);
@@ -106,9 +100,28 @@ export default class PointPresenter{
     this.#mode = Mode.DEFAULT;
   }
 
-  #handleStarClick = () => {
+  #starClickHandler = () => {
     this.#point.isFavorite = !this.#point.isFavorite;
-    this.#updateData(this.#point);
+    this.#updateData(UserAction.UPDATE_POINT, UpdateType.PATCH, this.#point);
+  };
+
+  #submitClickHandler = (point) => {
+    const isPatchUpdate = this.#point.dateFrom === point.dateFrom;
+
+    this.#replaceFormToPoint();
+    this.#updateData(
+      UserAction.UPDATE_POINT,
+      isPatchUpdate ? UpdateType.PATCH : UpdateType.MINOR,
+      point,
+    );
+  };
+
+  #deleteClickHandler = (point) => {
+    this.#updateData(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
   };
 
   #escKeyDownHandler = (evt) =>{
