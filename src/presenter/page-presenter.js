@@ -5,32 +5,33 @@ import PointsListView from '../view/points-list-view.js';
 import EmptyListView from '../view/empty-list-view.js';
 import FilterView from '../view/filter-view.js';
 
+import AddNewPointPresenter from './add-new-point-presenter.js';
 import PointPresenter from './point-presenter.js';
 
 import { generateFilters } from '../fish/filter.js';
-
 import { remove, render } from '../framework/render';
-
 import { MESSAGES_MAP, SortType, UpdateType, UserAction } from '../utils/const';
-
 import { SortFunction} from '../utils/sort.js';
 
 export default class PagePresenter {
   #pointsModel = new PointsModel();
   #list = new PointsListView();
   #pointPresenter = new Map();
+  #addNewPointPresenter = null;
 
   #sort = null;
   #filter = null;
   #listContainer = null;
   #filterContainer = null;
+  #addNewPointButton = null;
   #currentSortType = SortType.DEFAULT;
 
-  constructor(listContainer, filterContainer){
+  constructor(listContainer, filterContainer, addNewPointButton){
     this.#listContainer = listContainer;
     this.#filterContainer = filterContainer;
-
+    this.#addNewPointButton = addNewPointButton;
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#addNewPointPresenter = new AddNewPointPresenter(this.#list, this.#handleViewAction, addNewPointButton);
   }
 
   get points() {
@@ -46,6 +47,7 @@ export default class PagePresenter {
 
   init () {
     this.#renderBoard();
+    this.#addNewPointButton.addEventListener('click', this.#addNewPointHandler);
   }
 
   #renderFilter() {
@@ -95,16 +97,23 @@ export default class PagePresenter {
   }
 
   #renderBoard() {
+    this.#renderFilter();
     if(this.points.length <= 0){
       this.#renderNoPoints();
     }
     else{
-      this.#renderFilter();
       this.#renderSort();
       render(this.#list, this.#listContainer);
       this.#renderPoints();
     }
   }
+
+  #addNewPointHandler = () => {
+    this.#handleModeChange();
+    this.#currentSortType = SortType.DEFAULT;
+    //фильтр
+    this.#addNewPointPresenter.init(this.#addNewPointButton);
+  };
 
   #handleModelEvent = (updateType, data) => {
     switch (updateType) {
@@ -137,6 +146,7 @@ export default class PagePresenter {
   };
 
   #handleModeChange = () => {
+    this.#addNewPointPresenter.destroy();
     this.#pointPresenter.forEach((point) => point.resetView());
   };
 

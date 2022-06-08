@@ -54,7 +54,7 @@ const getEventDestination = (destination, mapDestinations) => {
 };
 
 const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, eventTypes}) => {
-  const {type, destination, dateFrom, dateTo, basePrice, id} = state;
+  const {type, destination, dateFrom, dateTo, basePrice, id, isNew} = state;
   const offers = mapOffers.get(type).offers;
   const destinations = eventDestinations;
   return `
@@ -81,7 +81,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           ${type}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-          name="event-destination" value=${destination} list="destination-list-1">
+          name="event-destination" value=${destination} list="destination-list-1" readonly>
         <datalist id="destination-list-1">
           ${getEventDestinations(destinations)}
         </datalist>
@@ -107,7 +107,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__reset-btn" type="reset">${isNew ? 'Cancel' : 'Delete'}</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -125,17 +125,6 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
   </form>
 </li>
   `;
-};
-
-const EMPTY_POINT = {
-  basePrice: 0,
-  dateFrom: '',
-  dateTo: '',
-  id: 0,
-  destination: '',
-  isFavorite: false,
-  type: '',
-  offers: [],
 };
 
 export default class FormCreateEditView extends AbstractStatefulView{
@@ -179,13 +168,22 @@ export default class FormCreateEditView extends AbstractStatefulView{
     return getEditTemplate(this._state, this.#additionData);
   }
 
-  static parsePointToState = (point = EMPTY_POINT) => ({...point,
+  static parsePointToState = (point) => ({...point,
     offers: new Set(point.offers),
   });
 
-  static parseStateToPoint = (state) => ({...state,
-    offers: [...state.offers],
-  });
+  static parseStateToPoint = (state) => {
+    const point = {...state,
+      offers: [...state.offers],
+    };
+    if(point.id === -1){
+      delete point.id;
+    }
+    if(point.isNew){
+      delete point.isNew;
+    }
+    return point;
+  };
 
 
   setSubmitHandler = (cb) => {
