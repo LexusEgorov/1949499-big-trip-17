@@ -3,31 +3,34 @@ import FilterModel from '../model/filter-model.js';
 
 import SortView from '../view/sort-view.js';
 import PointsListView from '../view/points-list-view.js';
-import EmptyListView from '../view/empty-list-view.js';
-import FilterView from '../view/filter-view.js';
 
 import FilterPresenter from './filter-presenter.js';
 import AddNewPointPresenter from './add-new-point-presenter.js';
 import PointPresenter from './point-presenter.js';
 
 import { remove, render } from '../framework/render';
-import { MESSAGES_MAP, SortType, UpdateType, UserAction } from '../utils/const';
+import { FilterType, SortType, UpdateType, UserAction } from '../utils/const';
 import { SortFunction} from '../utils/sort.js';
 import { Filter } from '../utils/filter';
+import EmptyListView from '../view/empty-list-view.js';
 
 export default class PagePresenter {
   #pointsModel = new PointsModel();
   #list = new PointsListView();
   #pointPresenter = new Map();
   #filterModel = new FilterModel();
-  #filterPresenter = null;
 
+  #filterPresenter = null;
   #addNewPointPresenter = null;
   #sort = null;
+  #emptyListComponent = null;
   #listContainer = null;
   #filterContainer = null;
   #addNewPointButton = null;
+
+  #isAdding = false;
   #currentSortType = SortType.DEFAULT;
+  #filterType = FilterType.EVERYTHING;
 
   constructor(listContainer, filterContainer, addNewPointButton){
     this.#listContainer = listContainer;
@@ -35,14 +38,14 @@ export default class PagePresenter {
     this.#addNewPointButton = addNewPointButton;
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
-    this.#addNewPointPresenter = new AddNewPointPresenter(this.#list, this.#handleViewAction, addNewPointButton);
+    this.#addNewPointPresenter = new AddNewPointPresenter(this.#list, this.#handleViewAction, this.#addPoint);
     this.#filterPresenter = new FilterPresenter(this.#filterContainer, this.#filterModel, this.#pointsModel);
   }
 
   get points() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const points = this.#pointsModel.points;
-    const filteredPoints = Filter[filterType](points);
+    const filteredPoints = Filter[this.#filterType](points);
 
     switch (this.#currentSortType){
       case SortType.PRICE:
@@ -82,9 +85,8 @@ export default class PagePresenter {
   }
 
   #renderNoPoints() {
-   /* const checkedFilter = this.#filter.element.querySelector(['input:checked']).value;
-    const messageComponent = new EmptyListView(MESSAGES_MAP.get(checkedFilter));
-    render(messageComponent, this.#listContainer);*/
+    this.#emptyListComponent = new EmptyListView(this.#filterType);
+    render(this.#emptyListComponent, this.#listContainer);
   }
 
   #clearBoard(resetSortType = false) {
@@ -92,6 +94,11 @@ export default class PagePresenter {
     this.#pointPresenter.clear();
     remove(this.#sort);
     remove(this.#list);
+
+    if(this.#emptyListComponent){
+      remove(this.#emptyListComponent);
+    }
+
     if(resetSortType){
       this.#currentSortType = SortType.DEFAULT;
     }
@@ -99,21 +106,30 @@ export default class PagePresenter {
 
   #renderBoard() {
     this.#renderFilter();
-    if(this.points.length <= 0){
+    if(this.points.length <= 0 && !this.#isAdding){
       this.#renderNoPoints();
     }
     else{
+      if(this.#isAdding){
+        this.#addNewPointPresenter.init();
+      }
       this.#renderSort();
       render(this.#list, this.#listContainer);
       this.#renderPoints();
     }
   }
 
+  #addPoint = () => {
+    this.#isAdding = false;
+    this.#addNewPointButton.disabled = false;
+    this.#handleModelEvent(UpdateType.MINOR);
+  };
+
   #addNewPointHandler = () => {
     this.#handleModeChange();
-    this.#currentSortType = SortType.DEFAULT;
-    //фильтр
-    this.#addNewPointPresenter.init(this.#addNewPointButton);
+    this.#isAdding = true;
+    this.#addNewPointButton.disabled = true;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
   };
 
   #handleModelEvent = (updateType, data) => {

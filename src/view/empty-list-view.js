@@ -1,14 +1,21 @@
 import AbstractView from '../framework/view/abstract-view';
+import { FilterType } from '../utils/const';
+
+const EmptyMesage = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.FUTURE]: 'There are no future events now',
+  [FilterType.PAST]: 'There are no past events now',
+};
 
 export default class EmptyListView extends AbstractView{
-  #message = null;
+  #filterType = null;
 
-  constructor(message){
+  constructor(filterType){
     super();
-    this.#message = message;
+    this.#filterType = filterType;
   }
 
   get template() {
-    return `<p class="trip-events__msg">${this.#message}</p>`;
+    return `<p class="trip-events__msg">${EmptyMesage[this.#filterType]}</p>`;
   }
 }

@@ -11,17 +11,18 @@ export default class AddNewPointPresenter{
   #destinationsModel = new DestinationsModel();
 
   #point = null;
-  #newButton = null;
   #additionData = null;
   #listContainer = null;
   #editNewPointComponent = null;
 
   #updateData = null;
+  #onResult = null;
 
-  constructor(listContainer, updateData, newButton){
+  constructor(listContainer, updateData, cb){
     this.#listContainer = listContainer;
     this.#updateData = updateData;
-    this.#newButton = newButton;
+    this.#onResult = cb;
+
     this.#additionData = {
       mapDestinations: this.#destinationsModel.mapDestinations,
       mapOffers: this.#offersModel.mapOffers,
@@ -33,13 +34,13 @@ export default class AddNewPointPresenter{
   }
 
   init() {
-    this.#newButton.disabled = true;
     this.#editNewPointComponent = new FormCreateEditView(this.#point, this.#additionData);
     this.#editNewPointComponent.setSubmitHandler(this.#saveClickHandler);
     this.#editNewPointComponent.setDeleteClickHandler(this.#cancelClickHandler);
 
     this.#editNewPointComponent.setPointClickHandler(() => {
       this.destroy();
+      this.#onResult();
     });
 
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -47,7 +48,6 @@ export default class AddNewPointPresenter{
   }
 
   destroy(){
-    this.#newButton.disabled = false;
     remove(this.#editNewPointComponent);
   }
 
@@ -72,10 +72,12 @@ export default class AddNewPointPresenter{
       point,
     );
     this.destroy();
+    this.#onResult();
   };
 
   #cancelClickHandler = () => {
     this.destroy();
+    this.#onResult();
   };
 
   #escKeyDownHandler = (evt) =>{
@@ -83,6 +85,7 @@ export default class AddNewPointPresenter{
       evt.preventDefault();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
       this.destroy();
+      this.#onResult();
     }
   };
 }

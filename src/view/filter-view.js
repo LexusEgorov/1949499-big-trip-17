@@ -12,7 +12,7 @@ const getFilterItemTemplate = (filter, currentFilterType) => {
   `;
 };
 
-const getFilterItems = (filters) => filters.map((filter) => getFilterItemTemplate(filter)).join('');
+const getFilterItems = (filters, currentFilter) => filters.map((filter) => getFilterItemTemplate(filter, currentFilter)).join('');
 
 export default class FilterView extends AbstractView {
   #filters = null;
