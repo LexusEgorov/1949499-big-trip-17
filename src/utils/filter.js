@@ -1,26 +1,12 @@
 import dayjs from 'dayjs';
-
-const MESSAGES_MAP = new Map([
-  ['everything', 'Click New Event to create your first point'],
-  ['past', 'There are no past events now'],
-  ['future', 'There are no future events now'],
-]);
+import { FilterType } from './const';
 
 const isFuture = (date) => (date.diff(dayjs()) > 0);
 
-const FilterType = {
-  EVERYTHING: 'everything',
-  FUTURE: 'future',
-  PAST: 'past',
-};
-
-const filter = {
+const Filter = {
   [FilterType.EVERYTHING]: (points) => points,
   [FilterType.FUTURE]: (points) => points.filter((point) => isFuture(dayjs(point.dateFrom))),
   [FilterType.PAST]: (points) => points.filter((point) => !isFuture(dayjs(point.dateTo))),
 };
 
-export {
-  MESSAGES_MAP,
-  filter,
-};
+export { Filter };
