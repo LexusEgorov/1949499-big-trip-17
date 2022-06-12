@@ -103,7 +103,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           &euro;
         </label>
         <input class="event__input  event__input--price" id="event-price-${id}" type="number" name="event-price"
-          value=${basePrice}>
+          value=${basePrice} min="0">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
