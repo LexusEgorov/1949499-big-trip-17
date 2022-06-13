@@ -19,7 +19,7 @@ export default class DestinationsModel extends Observable{
         this.#eventDestinations.push(destination.name);
       });
     } catch(err){
-      console.log(err);//заменить на обработчик
+      throw new Error(err);//заменить на обработчик
     }
 
     this._notify(UpdateType.INIT_DESTINATIONS);

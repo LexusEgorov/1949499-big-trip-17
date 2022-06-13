@@ -19,7 +19,7 @@ export default class OffersModel extends Observable{
         this.#eventTypes.push(offer.type);
       });
     } catch(err){
-      console.log('error');//заменить на обработчик
+      throw new Error(err);//заменить на обработчик
     }
 
     this._notify(UpdateType.INIT_OFFERS);
