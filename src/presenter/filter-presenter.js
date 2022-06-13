@@ -7,6 +7,7 @@ export default class FilterPresenter{
   #filterContainer = null;
   #filterModel = null;
   #pointsModel = null;
+  #isLoading = true;
 
   #filterComponent = null;
 
@@ -20,6 +21,11 @@ export default class FilterPresenter{
   }
 
   init(){
+    if(this.#isLoading){
+      this.#isLoading = false;
+      return;
+    }
+
     const filters = this.filters;
     const prevFilterComponent = this.#filterComponent;
 

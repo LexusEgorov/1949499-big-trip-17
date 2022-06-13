@@ -7,6 +7,7 @@ import {
 import AddNewPointPresenter from './add-new-point-presenter';
 import PointPresenter from './point-presenter';
 
+import LoadingView from '../view/loading-view';
 import PointsListView from '../view/points-list-view';
 import EmptyListView from '../view/empty-list-view';
 import SortView from '../view/sort-view';
@@ -32,7 +33,7 @@ export default class ListPresenter {
   #sortComponent = null;
   #emptyListComponent = null;
   #listComponent = new PointsListView();
-
+  #loadingComponent = new LoadingView();
   #pointPresenter = new Map();
 
   #pointsModel = null;
@@ -43,6 +44,9 @@ export default class ListPresenter {
   #addNewPointPresenter = null;
   #additionData = null;
 
+  #isOffersLoading = true;
+  #isDestinationsLoading = true;
+  #isLoading = true;
   #isAdding = false;
   #currentFilterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DEFAULT;
@@ -56,13 +60,8 @@ export default class ListPresenter {
 
     this.#pointsModel.addObserver(this.#modelEventHandler);
     this.#filterModel.addObserver(this.#modelEventHandler);
-
-    this.#additionData = {
-      mapDestinations: this.#destinationsModel.mapDestinations,
-      mapOffers: this.#offersModel.mapOffers,
-      eventTypes: this.#offersModel.eventTypes,
-      eventDestinations: this.#destinationsModel.eventDestinations,
-    };
+    this.#offersModel.addObserver(this.#modelEventHandler);
+    this.#destinationsModel.addObserver(this.#modelEventHandler);
 
     this.#addNewPointPresenter = new AddNewPointPresenter(this.#listComponent.element, this.#viewActionHandler, this.#additionData);
   }
@@ -71,6 +70,10 @@ export default class ListPresenter {
     this.#currentFilterType = this.#filterModel.filter;
     const points = this.#pointsModel.points;
     const filteredPoints = filter[this.#currentFilterType](points);
+
+    if(!points){
+      return [];
+    }
 
     switch (this.#currentSortType) {
       case SortType.PRICE:
@@ -102,10 +105,8 @@ export default class ListPresenter {
     this.#pointPresenter.clear();
     remove(this.#sortComponent);
     remove(this.#listComponent);
-
-    if (this.#emptyListComponent) {
-      remove(this.#emptyListComponent);
-    }
+    remove(this.#emptyListComponent);
+    remove(this.#loadingComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DEFAULT;
@@ -115,12 +116,30 @@ export default class ListPresenter {
   #renderList(){
     if (this.points.length <= 0 && !this.#isAdding) {
       this.#renderEmptyList();
-    } else {
-      render(this.#listComponent, this.#listContainer);
-      this.#renderSort();
-      this.#renderPoints();
+      return;
     }
     this.#isAdding = false;
+    if(this.#isLoading || this.#isOffersLoading || this.#isDestinationsLoading){
+      this.#renderLoading();
+      return;
+    }
+
+    if(!this.#additionData){
+      this.#additionData = {
+        mapDestinations: this.#destinationsModel.mapDestinations,
+        mapOffers: this.#offersModel.mapOffers,
+        eventTypes: this.#offersModel.eventTypes,
+        eventDestinations: this.#destinationsModel.eventDestinations,
+      };
+    }
+
+    render(this.#listComponent, this.#listContainer);
+    this.#renderSort();
+    this.#renderPoints();
+  }
+
+  #renderLoading(){
+    render(this.#loadingComponent, this.#listContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderSort() {
@@ -179,6 +198,21 @@ export default class ListPresenter {
         break;
       case UpdateType.MAJOR:
         this.#clearList(true);
+        this.#renderList();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        this.#clearList();
+        this.#renderList();
+        break;
+      case UpdateType.INIT_OFFERS:
+        this.#isOffersLoading = false;
+        this.#clearList();
+        this.#renderList();
+        break;
+      case UpdateType.INIT_DESTINATIONS:
+        this.#isDestinationsLoading = false;
+        this.#clearList();
         this.#renderList();
         break;
     }

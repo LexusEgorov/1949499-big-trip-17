@@ -1,20 +1,29 @@
-import { DESTINATIONS } from '../fish/destinations';
+import Observable from '../framework/observable';
+import { UpdateType } from '../utils/const';
 
-const getMapDestinations = () => {
-  const mapDestinations = new Map();
-  DESTINATIONS.forEach((destination) => mapDestinations.set(destination.name, destination));
-  return mapDestinations;
-};
+export default class DestinationsModel extends Observable{
+  #mapDestinations = new Map();
+  #eventDestinations = [];
+  #pointsApiService = null;
 
-const getEventDestinations = () => {
-  const eventDestinations = [];
-  DESTINATIONS.forEach((destination) => eventDestinations.push(destination.name));
-  return eventDestinations;
-};
+  constructor(pointsApiService){
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
-export default class DestinationsModel{
-  #mapDestinations = getMapDestinations();
-  #eventDestinations = getEventDestinations();
+  async init(){
+    try {
+      const destinations = await this.#pointsApiService.destinations;
+      destinations.forEach((destination) => {
+        this.#mapDestinations.set(destination.name, destination);
+        this.#eventDestinations.push(destination.name);
+      });
+    } catch(err){
+      console.log(err);//заменить на обработчик
+    }
+
+    this._notify(UpdateType.INIT_DESTINATIONS);
+  }
 
   get eventDestinations (){
     return this.#eventDestinations;
