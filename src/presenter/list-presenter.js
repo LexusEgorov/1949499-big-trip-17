@@ -114,15 +114,16 @@ export default class ListPresenter {
   }
 
   #renderList(){
+    if(this.#isLoading || this.#isOffersLoading || this.#isDestinationsLoading){
+      this.#renderLoading();
+      return;
+    }
+
     if (this.points.length <= 0 && !this.#isAdding) {
       this.#renderEmptyList();
       return;
     }
     this.#isAdding = false;
-    if(this.#isLoading || this.#isOffersLoading || this.#isDestinationsLoading){
-      this.#renderLoading();
-      return;
-    }
 
     if(!this.#additionData){
       this.#additionData = {
