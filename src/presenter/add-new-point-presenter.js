@@ -1,5 +1,3 @@
-import OffersModel from '../model/offers-model';
-import DestinationsModel from '../model/destinations-model';
 import FormCreateEditView from '../view/form-create-edit-view';
 
 import dayjs from 'dayjs';
@@ -7,85 +5,80 @@ import { remove, render, RenderPosition } from '../framework/render';
 import { UserAction, UpdateType } from '../utils/const';
 
 export default class AddNewPointPresenter{
-  #offersModel = new OffersModel();
-  #destinationsModel = new DestinationsModel();
-
-  #point = null;
-  #additionData = null;
+  #addNewPointComponent = null;
   #listContainer = null;
-  #editNewPointComponent = null;
-
   #updateData = null;
-  #onResult = null;
+  #additionData = null;
+  #destroyCallback = null;
 
-  constructor(listContainer, updateData, cb){
+  constructor(listContainer, updateData, additionData){
     this.#listContainer = listContainer;
     this.#updateData = updateData;
-    this.#onResult = cb;
-
-    this.#additionData = {
-      mapDestinations: this.#destinationsModel.mapDestinations,
-      mapOffers: this.#offersModel.mapOffers,
-      eventTypes: this.#offersModel.eventTypes,
-      eventDestinations: this.#destinationsModel.eventDestinations,
-    };
-
-    this.#point = this.#getDefaultPoint();
+    this.#additionData = additionData;
   }
 
-  init() {
-    this.#editNewPointComponent = new FormCreateEditView(this.#point, this.#additionData);
-    this.#editNewPointComponent.setSubmitHandler(this.#saveClickHandler);
-    this.#editNewPointComponent.setDeleteClickHandler(this.#cancelClickHandler);
-
-    this.#editNewPointComponent.setPointClickHandler(() => {
-      this.destroy();
-      this.#onResult();
-    });
-
+  init(closeHandler){
+    this.#destroyCallback = closeHandler;
+    if(this.#addNewPointComponent !== null){
+      return;
+    }
+    this.#addNewPointComponent = new FormCreateEditView(this.#getDefaultPoint(), this.#additionData);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-    render(this.#editNewPointComponent, this.#listContainer.element, RenderPosition.AFTERBEGIN);
+    this.#addNewPointComponent.setSubmitHandler(this.#updateHandler);
+    this.#addNewPointComponent.setPointClickHandler(this.#closeEditHandler);
+    this.#addNewPointComponent.setDeleteClickHandler(this.#deleteHandler);
+
+    render(this.#addNewPointComponent, this.#listContainer, RenderPosition.AFTERBEGIN);
   }
 
   destroy(){
-    remove(this.#editNewPointComponent);
+    if(this.#addNewPointComponent === null){
+      return;
+    }
+
+    this.#destroyCallback?.();
+
+    remove(this.#addNewPointComponent);
+    this.#addNewPointComponent = null;
+
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
-  #getDefaultPoint() {
+  #getDefaultPoint(){
     return {
       basePrice: 0,
       dateFrom: dayjs().toISOString(),
       dateTo: dayjs().toISOString(),
       id: -1,
-      destination: this.#destinationsModel.mapDestinations.values().next().value.name,
+      destination: this.#additionData.mapDestinations.values().next().value.name,
       isFavorite: false,
-      type: this.#offersModel.mapOffers.values().next().value.type,
+      type: this.#additionData.mapOffers.values().next().value.type,
       offers: [],
       isNew: true,
     };
   }
 
-  #saveClickHandler = (point) => {
+  #escKeyDownHandler =(evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.destroy();
+    }
+  };
+
+  #closeEditHandler = () => {
+    this.destroy();
+  };
+
+  #deleteHandler = () => {
+    this.destroy();
+  };
+
+  #updateHandler = (point) => {
+    this.destroy();
     this.#updateData(
       UserAction.ADD_POINT,
-      UpdateType.MAJOR,
+      UpdateType.MINOR,
       point,
     );
-    this.destroy();
-    this.#onResult();
-  };
-
-  #cancelClickHandler = () => {
-    this.destroy();
-    this.#onResult();
-  };
-
-  #escKeyDownHandler = (evt) =>{
-    if(evt.key === 'Escape' || evt.key === 'Esc'){
-      evt.preventDefault();
-      document.removeEventListener('keydown', this.#escKeyDownHandler);
-      this.destroy();
-      this.#onResult();
-    }
   };
 }

@@ -1,20 +1,29 @@
-import { OFFERS } from '../fish/offers';
+import Observable from '../framework/observable';
+import { UpdateType } from '../utils/const';
 
-const getMapOffers = () => {
-  const mapOffers = new Map();
-  OFFERS.forEach((offer) => mapOffers.set(offer.type, offer));
-  return mapOffers;
-};
+export default class OffersModel extends Observable{
+  #mapOffers = new Map();
+  #eventTypes = [];
+  #pointsApiService = null;
 
-const getEventTypes = () => {
-  const eventTypes = [];
-  OFFERS.forEach((offer) => eventTypes.push(offer.type));
-  return eventTypes;
-};
+  constructor(pointsApiService){
+    super();
+    this.#pointsApiService = pointsApiService;
+  }
 
-export default class OffersModel{
-  #mapOffers = getMapOffers();
-  #eventTypes = getEventTypes();
+  async init(){
+    try {
+      const offers = await this.#pointsApiService.offers;
+      offers.forEach((offer) => {
+        this.#mapOffers.set(offer.type, offer);
+        this.#eventTypes.push(offer.type);
+      });
+    } catch(err){
+      throw new Error(err);//заменить на обработчик
+    }
+
+    this._notify(UpdateType.INIT_OFFERS);
+  }
 
   get mapOffers (){
     return this.#mapOffers;

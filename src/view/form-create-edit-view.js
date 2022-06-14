@@ -81,7 +81,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           ${type}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-          name="event-destination" value=${destination} list="destination-list-1" autocomplete="off">
+          name="event-destination" value=${destination.name} list="destination-list-1" autocomplete="off">
         <datalist id="destination-list-1">
           ${getEventDestinations(destinations)}
         </datalist>
@@ -103,7 +103,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           &euro;
         </label>
         <input class="event__input  event__input--price" id="event-price-${id}" type="number" name="event-price"
-          value=${basePrice}>
+          value=${basePrice} min="0">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -120,7 +120,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
         ${getOffers(state, offers)}
         </div>
       </section>
-      ${getEventDestination(destination, mapDestinations)}
+      ${getEventDestination(destination.name, mapDestinations)}
     </section>
   </form>
 </li>
@@ -262,9 +262,9 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   #changeDestinationHandler = (evt) => {
     evt.preventDefault();
-    const destination = evt.target.value;
-    if (this.#additionData.eventDestinations.includes(destination.charAt(0).toUpperCase() + destination.slice(1))){
-      this._state.destination = destination;
+    const name = evt.target.value;
+    if (this.#additionData.eventDestinations.includes(name.charAt(0).toUpperCase() + name.slice(1))){
+      this._state.destination = this.#additionData.mapDestinations.get(name);
     }
     this.updateElement(this._state);
   };

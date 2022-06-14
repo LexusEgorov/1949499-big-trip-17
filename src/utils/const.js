@@ -31,6 +31,14 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
+  INIT_OFFERS: 'INIT OFFERS',
+  INIT_DESTINATIONS: 'INIT DESTINATIONS',
 };
 
-export {Mode, UserAction, UpdateType, FilterType, MESSAGES_MAP, SortType};
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+};
+
+export {Mode, UserAction, UpdateType, FilterType, MESSAGES_MAP, SortType, Method};
