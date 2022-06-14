@@ -9,7 +9,7 @@ import ListPresenter from './presenter/list-presenter';
 import PointsApiService from './points-api-service';
 
 const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
-const AUTHORIZATION = 'Basic asdasdasfafa123';
+const AUTHORIZATION = 'Basic asdasdasfafahghjvg23';
 
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
 

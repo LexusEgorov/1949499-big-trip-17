@@ -6,23 +6,11 @@ const getCitiesInfoTemplate = (points) => {
   const citiesSet = new Set();
   points.forEach((point) => citiesSet.add(point.destination.name));
   if(citiesSet.size > MAX_COUNT_CITIES){
-    return `${points[0].destination.name} &nbsp;&mdash;&nbsp; ... &nbsp;&mdash;&nbsp; ${points[points.length - 1].destination.name}`;
+    const firstCity = `${points[0].destination.name}`;
+    const secondCity ='&nbsp;&mdash;&nbsp;...';
+    const lastCity = `&nbsp;&mdash;&nbsp;${points[points.length - 1].destination.name}`;
+    return `${firstCity}${secondCity}${lastCity}`;
   }
-
-  if(citiesSet.size === MAX_COUNT_CITIES){
-    if(points.length > MAX_COUNT_CITIES){
-      return `${points[0].destination.name} &nbsp;&mdash;&nbsp; ... &nbsp;&mdash;&nbsp; ${points[points.length - 1].destination.name}`;
-    } else{
-      return `${[...citiesSet].join('&nbsp;&mdash;&nbsp;')}`;
-    }
-  }
-
-  if(points.length > MAX_COUNT_CITIES){
-    if(points[0].destination.name === points[points.length - 1].destination.name){
-      return `${[...citiesSet][0]} &nbsp;&mdash;&nbsp; ${[...citiesSet][1]} &nbsp;&mdash;&nbsp; ${[...citiesSet][0]}`;
-    }
-  }
-  return `${[...citiesSet].join('&nbsp;&mdash;&nbsp;')}`;
 };
 
 const getTripInfoTemplate = (points, price) =>

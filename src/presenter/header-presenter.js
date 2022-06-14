@@ -41,8 +41,13 @@ export default class HeaderPresenter{
       return;
     }
 
-    if(!this.#isOffersLoading && !this.#isPointsLoading){
+    if(!this.#isOffersLoading && !this.#isPointsLoading && this.#pointsModel.points.length > 0){
       this.#renderTripInfo();
+    }
+
+    if(!this.#isOffersLoading && !this.#isPointsLoading && this.#pointsModel.points.length === 0){
+      remove(this.#tripInfoComponent);
+      this.#tripInfoComponent = null;
     }
 
     replace(this.#filterComponent, prevFilterComponent);

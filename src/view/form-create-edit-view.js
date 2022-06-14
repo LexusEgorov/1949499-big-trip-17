@@ -13,7 +13,9 @@ const getPictures = (pictures) => pictures.map((picture) => getPictureTemplate(p
 
 const getOfferTemplate = (state, offer) => `
 <div class="event__offer-selector">
-<input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" value="${offer.id}" name="event-offer" ${getCheck(offer.id, state.offers)}>
+<input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" value="${offer.id}" name="event-offer" 
+${getCheck(offer.id, state.offers)}
+${state.isDisabled ? 'disabled' : ''}>
 <label class="event__offer-label" for="event-offer-${offer.id}">
   <span class="event__offer-title">${offer.title}</span>
   &plus;&euro;&nbsp;
@@ -53,8 +55,36 @@ const getEventDestination = (destination, mapDestinations) => {
   `;
 };
 
+const getSaveButtonTemplate = (isSaving) => {
+  if(isSaving){
+    return '<button class="event__save-btn  btn  btn--blue" type="submit" disabled>Saving...</button>';
+  }
+  return '<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>';
+};
+
+const getDeleteButtonTemplate = (isDeleting, isNew) => {
+  if(isNew){
+    return '<button class="event__reset-btn" type="reset">Cancel</button>';
+  }
+  if(isDeleting){
+    return '<button class="event__reset-btn" type="reset" disabled>Deleting...</button>';
+  }
+  return '<button class="event__reset-btn" type="reset">Delete</button>';
+};
+
 const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, eventTypes}) => {
-  const {type, destination, dateFrom, dateTo, basePrice, id, isNew} = state;
+  const {
+    type,
+    destination,
+    dateFrom,
+    dateTo,
+    basePrice,
+    id,
+    isNew,
+    isDisabled,
+    isSaving,
+    isDeleting
+  } = state;
   const offers = mapOffers.get(type).offers;
   const destinations = eventDestinations;
   return `
@@ -66,7 +96,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -81,7 +111,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           ${type}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-          name="event-destination" value=${destination.name} list="destination-list-1" autocomplete="off">
+          name="event-destination" value=${destination.name} list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
         <datalist id="destination-list-1">
           ${getEventDestinations(destinations)}
         </datalist>
@@ -90,11 +120,11 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-${id}">From</label>
         <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time"
-          value="${dayjs(dateFrom).format('DD/MM/YYYY HH:mm')}">
+          value="${dayjs(dateFrom).format('DD/MM/YYYY HH:mm')}" ${isDisabled ? 'disabled' : ''}>
         &mdash;
         <label class="visually-hidden" for="event-end-time-${id}">To</label>
         <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time"
-          value="${dayjs(dateTo).format('DD/MM/YYYY HH:mm')}">
+          value="${dayjs(dateTo).format('DD/MM/YYYY HH:mm')}" ${isDisabled ? 'disabled' : ''}>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -103,12 +133,11 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           &euro;
         </label>
         <input class="event__input  event__input--price" id="event-price-${id}" type="number" name="event-price"
-          value=${basePrice} min="1">
+          value=${basePrice} min="1" ${isDisabled ? 'disabled' : ''}>
       </div>
-
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">${isNew ? 'Cancel' : 'Delete'}</button>
-      <button class="event__rollup-btn" type="button">
+      ${getSaveButtonTemplate(isSaving)}
+      ${getDeleteButtonTemplate(isDeleting, isNew)}
+      <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
         <span class="visually-hidden">Open event</span>
       </button>
     </header>
@@ -120,10 +149,10 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
         ${getOffers(state, offers)}
         </div>
       </section>
-      ${getEventDestination(destination.name, mapDestinations)}
-    </section>
-  </form>
-</li>
+        ${getEventDestination(destination.name, mapDestinations)}
+      </section>
+    </form>
+  </li>
   `;
 };
 
@@ -170,6 +199,9 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   static parsePointToState = (point) => ({...point,
     offers: new Set(point.offers),
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
   });
 
   static parseStateToPoint = (state) => {
@@ -182,6 +214,9 @@ export default class FormCreateEditView extends AbstractStatefulView{
     if(point.isNew){
       delete point.isNew;
     }
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
     return point;
   };
 
