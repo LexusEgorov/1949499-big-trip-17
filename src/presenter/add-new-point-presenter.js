@@ -46,11 +46,11 @@ export default class AddNewPointPresenter{
 
   #getDefaultPoint(){
     return {
-      basePrice: 0,
+      basePrice: 1,
       dateFrom: dayjs().toISOString(),
       dateTo: dayjs().toISOString(),
       id: -1,
-      destination: this.#additionData.mapDestinations.values().next().value.name,
+      destination: this.#additionData.mapDestinations.values().next().value,
       isFavorite: false,
       type: this.#additionData.mapOffers.values().next().value.type,
       offers: [],

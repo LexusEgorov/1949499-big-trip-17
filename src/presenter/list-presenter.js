@@ -24,7 +24,7 @@ import {
 } from '../utils/filter';
 
 import {
-  SortFunction
+  sortFunction
 } from '../utils/sort';
 
 export default class ListPresenter {
@@ -77,12 +77,12 @@ export default class ListPresenter {
 
     switch (this.#currentSortType) {
       case SortType.PRICE:
-        return filteredPoints.sort(SortFunction.PRICE);
+        return filteredPoints.sort(sortFunction.PRICE);
       case SortType.TIME:
-        return filteredPoints.sort(SortFunction.DURATION);
+        return filteredPoints.sort(sortFunction.DURATION);
     }
 
-    return filteredPoints.sort(SortFunction.DATE);
+    return filteredPoints.sort(sortFunction.DATE);
   }
 
   init() {

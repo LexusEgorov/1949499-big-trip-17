@@ -39,6 +39,8 @@ const UpdateType = {
 const Method = {
   GET: 'GET',
   PUT: 'PUT',
+  DELETE: 'DELETE',
+  POST: 'POST',
 };
 
 export {Mode, UserAction, UpdateType, FilterType, MESSAGES_MAP, SortType, Method};
