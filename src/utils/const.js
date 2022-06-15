@@ -34,6 +34,7 @@ const UpdateType = {
   INIT: 'INIT',
   INIT_OFFERS: 'INIT OFFERS',
   INIT_DESTINATIONS: 'INIT DESTINATIONS',
+  ERROR: 'ERROR',
 };
 
 const Method = {
@@ -48,4 +49,6 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-export {Mode, UserAction, UpdateType, FilterType, MESSAGES_MAP, SortType, Method, TimeLimit};
+const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
+
+export {Mode, UserAction, UpdateType, FilterType, MESSAGES_MAP, SortType, Method, TimeLimit, END_POINT};

@@ -14,15 +14,16 @@ export default class DestinationsModel extends Observable{
   async init(){
     try {
       const destinations = await this.#pointsApiService.destinations;
+
       destinations.forEach((destination) => {
         this.#mapDestinations.set(destination.name, destination);
         this.#eventDestinations.push(destination.name);
       });
-    } catch(err){
-      throw new Error(err);//заменить на обработчик
-    }
 
-    this._notify(UpdateType.INIT_DESTINATIONS);
+      this._notify(UpdateType.INIT_DESTINATIONS);
+    } catch(err){
+      this._notify(UpdateType.ERROR);
+    }
   }
 
   get eventDestinations (){

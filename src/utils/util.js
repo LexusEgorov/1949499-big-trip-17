@@ -1,15 +1,9 @@
 import dayjs from 'dayjs';
+import {nanoid} from 'nanoid';
 
 const HOUR_TO_MINUTES = 60;
 const DAY_TO_MINUTES = 1440;
 const FORMAT = 10;
-
-const getRandomInteger = (from = 0, to = 1) => {
-  const lower = Math.floor(Math.min(from, to));
-  const upper = Math.ceil(Math.max(from, to));
-
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
 
 const getCheck = (offer, offersSet) => offersSet.has(offer) ? 'checked' : '';
 
@@ -46,18 +40,18 @@ const getTimeDifference = (dateFrom, dateTo) => {
   return `${resultDifference.days} ${resultDifference.hours} ${resultDifference.minutes}`;
 };
 
-function generateId(){
-  let id = 1;
-  return function(){
-    return id++;
-  };
-}
-
-const generator = generateId();
+const getToken = () => {
+  const localStorage = window.localStorage;
+  let token = localStorage.getItem('BIG_TRIP_AUTHORIZATION_KEY');
+  if(!token){
+    localStorage.setItem('BIG_TRIP_AUTHORIZATION_KEY',`Basic ${nanoid(32)}`);
+    token = localStorage.getItem('BIG_TRIP_AUTHORIZATION_KEY');
+  }
+  return token;
+};
 
 export {
-  getRandomInteger,
   getTimeDifference,
   getCheck,
-  generator,
+  getToken,
 };

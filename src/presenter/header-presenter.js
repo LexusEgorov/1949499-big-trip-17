@@ -13,19 +13,23 @@ export default class HeaderPresenter{
   #tripInfoComponent = null;
   #filterComponent = null;
   #offersModel = null;
+  #destinationsModel = null;
 
+  #isError = false;
   #isOffersLoading = true;
   #isPointsLoading = true;
 
-  constructor(headerContainer, filterModel, pointsModel, offersModel){
+  constructor(headerContainer, filterModel, pointsModel, offersModel, destinationsModel){
     this.#filterContainer = headerContainer.querySelector('.trip-controls__filters');
     this.#headerContainer = headerContainer;
     this.#filterModel = filterModel;
     this.#pointsModel = pointsModel;
     this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
 
     this.#pointsModel.addObserver(this.#modelEventHandler);
     this.#offersModel.addObserver(this.#modelEventHandler);
+    this.#destinationsModel.addObserver(this.#modelEventHandler);
     this.#filterModel.addObserver(this.#modelEventHandler);
   }
 
@@ -35,6 +39,14 @@ export default class HeaderPresenter{
 
     this.#filterComponent = new FilterView(filters, this.#filterModel.filter);
     this.#filterComponent.setChangeHandler(this.#filterTypeChangeHandler);
+
+    if(this.#isError){
+      remove(prevFilterComponent);
+      remove(this.#filterComponent);
+      remove(this.#tripInfoComponent);
+      this.#headerContainer.querySelector('.trip-main__event-add-btn').disabled = true;
+      return;
+    }
 
     if(prevFilterComponent === null){
       render(this.#filterComponent, this.#filterContainer);
@@ -115,6 +127,9 @@ export default class HeaderPresenter{
         break;
       case UpdateType.INIT_OFFERS:
         this.#isOffersLoading = false;
+        break;
+      case UpdateType.ERROR:
+        this.#isError = true;
         break;
       default:
         break;
