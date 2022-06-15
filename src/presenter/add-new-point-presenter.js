@@ -24,7 +24,7 @@ export default class AddNewPointPresenter{
     }
     this.#addNewPointComponent = new FormCreateEditView(this.#getDefaultPoint(), this.#additionData);
     document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#addNewPointComponent.setSubmitHandler(this.#updateHandler);
+    this.#addNewPointComponent.setSubmitHandler(this.#saveHandler);
     this.#addNewPointComponent.setPointClickHandler(this.#closeEditHandler);
     this.#addNewPointComponent.setDeleteClickHandler(this.#deleteHandler);
 
@@ -36,21 +36,39 @@ export default class AddNewPointPresenter{
       return;
     }
 
-    this.#destroyCallback?.();
-
     remove(this.#addNewPointComponent);
     this.#addNewPointComponent = null;
 
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#destroyCallback?.();
+  }
+
+  setSaving(){
+    this.#addNewPointComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting(){
+    const resetFormState = () => {
+      this.#addNewPointComponent.updateElement({
+        isDisabled: false,
+        isDeleting: false,
+        isSaving: false,
+      });
+    };
+
+    this.#addNewPointComponent.shake(resetFormState);
   }
 
   #getDefaultPoint(){
     return {
-      basePrice: 0,
+      basePrice: 1,
       dateFrom: dayjs().toISOString(),
       dateTo: dayjs().toISOString(),
       id: -1,
-      destination: this.#additionData.mapDestinations.values().next().value.name,
+      destination: this.#additionData.mapDestinations.values().next().value,
       isFavorite: false,
       type: this.#additionData.mapOffers.values().next().value.type,
       offers: [],
@@ -73,8 +91,7 @@ export default class AddNewPointPresenter{
     this.destroy();
   };
 
-  #updateHandler = (point) => {
-    this.destroy();
+  #saveHandler = (point) => {
     this.#updateData(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
