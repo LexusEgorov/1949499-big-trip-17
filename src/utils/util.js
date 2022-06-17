@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import {nanoid} from 'nanoid';
 
 const HOUR_TO_MINUTES = 60;
 const DAY_TO_MINUTES = 1440;
@@ -8,8 +7,8 @@ const FORMAT = 10;
 const getCheck = (offer, offersSet) => offersSet.has(offer) ? 'checked' : '';
 
 const getTimeDifference = (dateFrom, dateTo) => {
-  const from = dayjs(dateFrom);
-  const to = dayjs(dateTo);
+  const timeFrom = dayjs(dateFrom);
+  const timeTo = dayjs(dateTo);
 
   const resultDifference = {
     days: '',
@@ -17,7 +16,7 @@ const getTimeDifference = (dateFrom, dateTo) => {
     minutes: '',
   };
 
-  let minutesDifference = to.diff(from, 'minutes');
+  let minutesDifference = timeTo.diff(timeFrom, 'minutes');
   if(minutesDifference < 0){
     return;
   }
@@ -40,18 +39,7 @@ const getTimeDifference = (dateFrom, dateTo) => {
   return `${resultDifference.days} ${resultDifference.hours} ${resultDifference.minutes}`;
 };
 
-const getToken = () => {
-  const localStorage = window.localStorage;
-  let token = localStorage.getItem('BIG_TRIP_AUTHORIZATION_KEY');
-  if(!token){
-    localStorage.setItem('BIG_TRIP_AUTHORIZATION_KEY',`Basic ${nanoid(32)}`);
-    token = localStorage.getItem('BIG_TRIP_AUTHORIZATION_KEY');
-  }
-  return token;
-};
-
 export {
   getTimeDifference,
   getCheck,
-  getToken,
 };

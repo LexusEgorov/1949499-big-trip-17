@@ -33,6 +33,24 @@ export default class HeaderPresenter{
     this.#filterModel.addObserver(this.#modelEventHandler);
   }
 
+  get filters(){
+    const points = this.#pointsModel.points ?? [];
+    return [
+      {
+        type: FilterType.EVERYTHING,
+        count: filter[FilterType.EVERYTHING](points).length,
+      },
+      {
+        type: FilterType.FUTURE,
+        count: filter[FilterType.FUTURE](points).length,
+      },
+      {
+        type: FilterType.PAST,
+        count: filter[FilterType.PAST](points).length,
+      }
+    ];
+  }
+
   init(){
     const filters = this.filters;
     const prevFilterComponent = this.#filterComponent;
@@ -64,24 +82,6 @@ export default class HeaderPresenter{
 
     replace(this.#filterComponent, prevFilterComponent);
     remove(prevFilterComponent);
-  }
-
-  get filters(){
-    const points = this.#pointsModel.points ?? [];
-    return [
-      {
-        type: FilterType.EVERYTHING,
-        count: filter[FilterType.EVERYTHING](points).length,
-      },
-      {
-        type: FilterType.FUTURE,
-        count: filter[FilterType.FUTURE](points).length,
-      },
-      {
-        type: FilterType.PAST,
-        count: filter[FilterType.PAST](points).length,
-      }
-    ];
   }
 
   #getTotalPrice(points){

@@ -7,6 +7,8 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 import dayjs from 'dayjs';
 
+const NEW_POINT_ID = -1;
+
 const getPictureTemplate = ({src}) => `<img class="event__photo" src=${src} alt="Event photo"></img>`;
 
 const getPictures = (pictures) => pictures.map((picture) => getPictureTemplate(picture)).join('');
@@ -23,7 +25,20 @@ ${state.isDisabled ? 'disabled' : ''}>
 </label>
 </div>`;
 
-const getOffers = (state, offers) => offers.map((offer) => getOfferTemplate(state, offer)).join('');
+const getOffers = (state, offers) => {
+  const offersTemplate = offers.map((offer) => getOfferTemplate(state, offer)).join('');
+  if(offersTemplate === ''){
+    return '';
+  }
+  return `
+    <section class="event__section  event__section--offers">
+      <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+      <div class="event__available-offers">
+        ${offersTemplate}
+      </div>
+    </section>
+  `;
+};
 
 const getEventTypeItemTemplate = (type, stateType) => `
 <div class="event__type-item">
@@ -42,8 +57,7 @@ const getEventDestination = (destination, mapDestinations) => {
   if(!mapDestinations.get(destination)){
     return '';
   }
-  const description = mapDestinations.get(destination).description;
-  const pictures = mapDestinations.get(destination).pictures;
+  const {description, pictures} = mapDestinations.get(destination);
   return `
     <section class="event__section  event__section--destination">
       <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -110,9 +124,9 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
         <label class="event__label  event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text"
-          name="event-destination" value=${destination.name} list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
-        <datalist id="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-${id}" type="text"
+          name="event-destination" value=${destination.name} list="destination-list-${id}" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
+        <datalist id="destination-list-${id}">
           ${getEventDestinations(destinations)}
         </datalist>
       </div>
@@ -142,15 +156,9 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
       </button>
     </header>
     <section class="event__details">
-      <section class="event__section  event__section--offers">
-        <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-        <div class="event__available-offers">
-        ${getOffers(state, offers)}
-        </div>
-      </section>
-        ${getEventDestination(destination.name, mapDestinations)}
-      </section>
+      ${getOffers(state, offers)}
+      ${getEventDestination(destination.name, mapDestinations)}
+    </section>
     </form>
   </li>
   `;
@@ -170,6 +178,52 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   get point (){
     return FormCreateEditView.parseStateToPoint(this._state);
+  }
+
+  get template() {
+    return getEditTemplate(this._state, this.#additionData);
+  }
+
+  setSubmitHandler(cb){
+    this._callback.submit = cb;
+    this.element.addEventListener('submit', this.#submitHandler);
+  }
+
+  #setInnerHandlers(){
+    const offersComponent = this.element.querySelector('.event__available-offers');
+    this.element.querySelector('.event__type-group')
+      .addEventListener('change', this.#changeTypeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#changeDestinationHandler);
+    this.#setDatepicker();
+    this.element.querySelector(`#event-price-${this._state.id}`)
+      .addEventListener('change', this.#changePriceHandler);
+    if(offersComponent){
+      offersComponent.addEventListener('change', this.#changeOfferHandler);
+    }
+  }
+
+  #setDatepicker(){
+    this.#datepickerStart = flatpickr(
+      this.element.querySelector(`#event-start-time-${this._state.id}`),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/Y H:i',
+        defaultDate: this._state.dateFrom,
+        onChange: this.#changeDateFromHandler,
+      }
+    );
+
+    this.#datepickerEnd = flatpickr(
+      this.element.querySelector(`#event-end-time-${this._state.id}`),
+      {
+        enableTime: true,
+        dateFormat: 'd/m/Y H:i',
+        minDate: this._state.dateFrom,
+        defaultDate: this._state.dateTo,
+        onChange: this.#changeDateToHandler,
+      }
+    );
   }
 
   removeElement = () => {
@@ -193,76 +247,10 @@ export default class FormCreateEditView extends AbstractStatefulView{
     this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
-  get template() {
-    return getEditTemplate(this._state, this.#additionData);
-  }
-
-  static parsePointToState = (point) => ({...point,
-    offers: new Set(point.offers),
-    isDisabled: false,
-    isSaving: false,
-    isDeleting: false,
-  });
-
-  static parseStateToPoint = (state) => {
-    const point = {...state,
-      offers: [...state.offers],
-    };
-    if(point.id === -1){
-      delete point.id;
-    }
-    if(point.isNew){
-      delete point.isNew;
-    }
-    delete point.isDisabled;
-    delete point.isSaving;
-    delete point.isDeleting;
-    return point;
-  };
-
-
-  setSubmitHandler = (cb) => {
-    this._callback.submit = cb;
-    this.element.addEventListener('submit', this.#submitHandler);
-  };
-
-  #setInnerHandlers = () => {
-    this.element.querySelector('.event__type-group')
-      .addEventListener('change', this.#changeTypeHandler);
-    this.element.querySelector('.event__input--destination')
-      .addEventListener('change', this.#changeDestinationHandler);
-    this.#setDatepicker();
-    this.element.querySelector(`#event-price-${this._state.id}`)
-      .addEventListener('change', this.#changePriceHandler);
-    this.element.querySelector('.event__available-offers')
-      .addEventListener('change', this.#changeOfferHandler);
-  };
-
-  #setDatepicker = () => {
-    this.#datepickerStart = flatpickr(
-      this.element.querySelector(`#event-start-time-${this._state.id}`),
-      {
-        enableTime: true,
-        dateFormat: 'd/m/Y H:i',
-        maxDate: this._state.dateTo,
-        defaultDate: this._state.dateFrom,
-        onChange: this.#changeDateFromHandler,
-      }
-    );
-
-    this.#datepickerEnd = flatpickr(
-      this.element.querySelector(`#event-end-time-${this._state.id}`),
-      {
-        enableTime: true,
-        dateFormat: 'd/m/Y H:i',
-        minDate: this._state.dateFrom,
-        defaultDate: this._state.dateTo,
-        onChange: this.#changeDateToHandler,
-      }
-    );
-  };
-
   #changeDateFromHandler = ([userDate]) => {
+    if(dayjs(this._state.dateTo) < userDate){
+      this.updateElement({dateTo: userDate});
+    }
     this.updateElement({dateFrom: userDate});
   };
 
@@ -330,4 +318,29 @@ export default class FormCreateEditView extends AbstractStatefulView{
     evt.preventDefault();
     this._callback.pointClick();
   };
+
+  static parsePointToState(point){
+    return {...point,
+      offers: new Set(point.offers),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
+  }
+
+  static parseStateToPoint(state){
+    const point = {...state,
+      offers: [...state.offers],
+    };
+    if(point.id === NEW_POINT_ID){
+      delete point.id;
+    }
+    if(point.isNew){
+      delete point.isNew;
+    }
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+    return point;
+  }
 }

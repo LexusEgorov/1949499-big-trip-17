@@ -72,19 +72,19 @@ export default class RoutePointView extends AbstractView{
     return getPointTemplate(this.#point, this.#offers, this.#selectedOffers);
   }
 
-  setStarClickHandler = (cb) => {
+  setStarClickHandler(cb){
     this._callback.starClick = cb;
     this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#starClickHandler);
-  };
+  }
+
+  setEditClickHandler(cb){
+    this._callback.editClick = cb;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  }
 
   #starClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.starClick();
-  };
-
-  setEditClickHandler = (cb) => {
-    this._callback.editClick = cb;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   };
 
   #editClickHandler = (evt) => {

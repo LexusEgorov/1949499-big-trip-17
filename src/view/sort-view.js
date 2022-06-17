@@ -9,18 +9,6 @@ export default class SortView extends AbstractView{
     this.#currentSortType = currentSortType;
   }
 
-  setSortTypeChangeHandler = (cb) => {
-    this._callback.sortTypeChange = cb;
-    this.element.addEventListener('change', this.#sortTypeChangeHandler);
-  };
-
-  #sortTypeChangeHandler = (evt) => {
-    evt.preventDefault();
-    if(evt.target.dataset.sortType){
-      this._callback.sortTypeChange(evt.target.dataset.sortType);
-    }
-  };
-
   get template() {
     return `
     <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -56,4 +44,16 @@ export default class SortView extends AbstractView{
     </form>
   `;
   }
+
+  setSortTypeChangeHandler(cb){
+    this._callback.sortTypeChange = cb;
+    this.element.addEventListener('change', this.#sortTypeChangeHandler);
+  }
+
+  #sortTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    if(evt.target.dataset.sortType){
+      this._callback.sortTypeChange(evt.target.dataset.sortType);
+    }
+  };
 }

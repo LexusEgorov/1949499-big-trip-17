@@ -4,6 +4,8 @@ import dayjs from 'dayjs';
 import { remove, render, RenderPosition } from '../framework/render';
 import { UserAction, UpdateType } from '../utils/const';
 
+const NEW_POINT_ID = -1;
+
 export default class AddNewPointPresenter{
   #addNewPointComponent = null;
   #listContainer = null;
@@ -67,7 +69,7 @@ export default class AddNewPointPresenter{
       basePrice: 1,
       dateFrom: dayjs().toISOString(),
       dateTo: dayjs().toISOString(),
-      id: -1,
+      id: NEW_POINT_ID,
       destination: this.#additionData.mapDestinations.values().next().value,
       isFavorite: false,
       type: this.#additionData.mapOffers.values().next().value.type,

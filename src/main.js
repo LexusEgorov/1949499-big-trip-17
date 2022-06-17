@@ -7,10 +7,10 @@ import HeaderPresenter from './presenter/header-presenter';
 import ListPresenter from './presenter/list-presenter';
 
 import PointsApiService from './points-api-service';
-import { getToken } from './utils/util';
 import { END_POINT } from './utils/const';
+import { nanoid } from 'nanoid';
 
-const AUTHORIZATION = getToken();
+const AUTHORIZATION = `Basic ${nanoid(32)}`;
 
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
 
