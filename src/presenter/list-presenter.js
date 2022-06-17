@@ -9,6 +9,7 @@ import UiBlocker from '../framework/ui-blocker/ui-blocker';
 import AddNewPointPresenter from './add-new-point-presenter';
 import PointPresenter from './point-presenter';
 
+import ErrorView from '../view/error-view';
 import LoadingView from '../view/loading-view';
 import PointsListView from '../view/points-list-view';
 import EmptyListView from '../view/empty-list-view';
@@ -34,7 +35,7 @@ export default class ListPresenter {
   #listContainer = null;
   #sortComponent = null;
   #emptyListComponent = null;
-  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
+  #errorComponent = null;
   #listComponent = new PointsListView();
   #loadingComponent = new LoadingView();
   #pointPresenter = new Map();
@@ -47,12 +48,15 @@ export default class ListPresenter {
   #addNewPointPresenter = null;
   #additionData = null;
 
+  #isError = false;
   #isOffersLoading = true;
   #isDestinationsLoading = true;
   #isLoading = true;
   #isAdding = false;
+
   #currentFilterType = FilterType.EVERYTHING;
   #currentSortType = SortType.DEFAULT;
+  #uiBlocker = new UiBlocker(TimeLimit.LOWER_LIMIT, TimeLimit.UPPER_LIMIT);
 
   constructor(listContainer, pointsModel, filterModel, offersModel, destinationsModel) {
     this.#listContainer = listContainer;
@@ -120,6 +124,15 @@ export default class ListPresenter {
   }
 
   #renderList(){
+    if(this.#isError){
+      if(this.#errorComponent){
+        return;
+      }
+      this.#errorComponent = new ErrorView();
+      render(this.#errorComponent, this.#listContainer);
+      return;
+    }
+
     if(this.#isLoading || this.#isOffersLoading || this.#isDestinationsLoading){
       this.#renderLoading();
       return;
@@ -241,6 +254,10 @@ export default class ListPresenter {
         this.#clearList();
         this.#renderList();
         break;
+      case UpdateType.ERROR:
+        this.#isError = true;
+        this.#clearList();
+        this.#renderList();
     }
   };
 

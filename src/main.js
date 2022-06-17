@@ -7,9 +7,10 @@ import HeaderPresenter from './presenter/header-presenter';
 import ListPresenter from './presenter/list-presenter';
 
 import PointsApiService from './points-api-service';
+import { getToken } from './utils/util';
+import { END_POINT } from './utils/const';
 
-const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
-const AUTHORIZATION = 'Basic asdasdasfafahghjvg23';
+const AUTHORIZATION = getToken();
 
 const pointsApiService = new PointsApiService(END_POINT, AUTHORIZATION);
 
@@ -22,7 +23,7 @@ const pointsModel = new PointsModel(pointsApiService);
 const offersModel = new OffersModel(pointsApiService);
 const destinationsModel = new DestinationsModel(pointsApiService);
 
-const headerPresenter = new HeaderPresenter(headerContainer, filterModel, pointsModel, offersModel);
+const headerPresenter = new HeaderPresenter(headerContainer, filterModel, pointsModel, offersModel, destinationsModel);
 const listPresenter = new ListPresenter(listContainer, pointsModel, filterModel, offersModel, destinationsModel);
 
 pointsModel.init();

@@ -1,16 +1,17 @@
 import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
+
 const MAX_COUNT_CITIES = 3;
 
 const getCitiesInfoTemplate = (points) => {
   const citiesSet = new Set();
   points.forEach((point) => citiesSet.add(point.destination.name));
-  if(citiesSet.size > MAX_COUNT_CITIES){
-    const firstCity = `${points[0].destination.name}`;
-    const secondCity ='&nbsp;&mdash;&nbsp;...';
-    const lastCity = `&nbsp;&mdash;&nbsp;${points[points.length - 1].destination.name}`;
-    return `${firstCity}${secondCity}${lastCity}`;
+
+  if(citiesSet.size <= MAX_COUNT_CITIES){
+    return [...citiesSet].join('&nbsp;&mdash;&nbsp;');
   }
+
+  return `${points[0].destination.name}&nbsp;&mdash;&nbsp;...&nbsp;&mdash;&nbsp;${points[points.length - 1].destination.name}`;
 };
 
 const getTripInfoTemplate = (points, price) =>

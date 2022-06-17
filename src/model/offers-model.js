@@ -14,15 +14,16 @@ export default class OffersModel extends Observable{
   async init(){
     try {
       const offers = await this.#pointsApiService.offers;
+
       offers.forEach((offer) => {
         this.#mapOffers.set(offer.type, offer);
         this.#eventTypes.push(offer.type);
       });
-    } catch(err){
-      throw new Error(err);//заменить на обработчик
-    }
 
-    this._notify(UpdateType.INIT_OFFERS);
+      this._notify(UpdateType.INIT_OFFERS);
+    } catch(err){
+      this._notify(UpdateType.ERROR);
+    }
   }
 
   get mapOffers (){
