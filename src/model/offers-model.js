@@ -11,6 +11,14 @@ export default class OffersModel extends Observable{
     this.#pointsApiService = pointsApiService;
   }
 
+  get mapOffers (){
+    return this.#mapOffers;
+  }
+
+  get eventTypes (){
+    return this.#eventTypes;
+  }
+
   async init(){
     try {
       const offers = await this.#pointsApiService.offers;
@@ -24,13 +32,5 @@ export default class OffersModel extends Observable{
     } catch(err){
       this._notify(UpdateType.ERROR);
     }
-  }
-
-  get mapOffers (){
-    return this.#mapOffers;
-  }
-
-  get eventTypes (){
-    return this.#eventTypes;
   }
 }

@@ -11,6 +11,14 @@ export default class DestinationsModel extends Observable{
     this.#pointsApiService = pointsApiService;
   }
 
+  get eventDestinations (){
+    return this.#eventDestinations;
+  }
+
+  get mapDestinations (){
+    return this.#mapDestinations;
+  }
+
   async init(){
     try {
       const destinations = await this.#pointsApiService.destinations;
@@ -24,13 +32,5 @@ export default class DestinationsModel extends Observable{
     } catch(err){
       this._notify(UpdateType.ERROR);
     }
-  }
-
-  get eventDestinations (){
-    return this.#eventDestinations;
-  }
-
-  get mapDestinations (){
-    return this.#mapDestinations;
   }
 }
