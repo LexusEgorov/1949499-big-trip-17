@@ -100,7 +100,6 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
     isDeleting
   } = state;
   const offers = mapOffers.get(type).offers;
-  const destinations = eventDestinations;
   return `
   <li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -127,7 +126,7 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
         <input class="event__input  event__input--destination" id="event-destination-${id}" type="text"
           name="event-destination" value=${destination.name} list="destination-list-${id}" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
         <datalist id="destination-list-${id}">
-          ${getEventDestinations(destinations)}
+          ${getEventDestinations(eventDestinations)}
         </datalist>
       </div>
 

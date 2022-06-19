@@ -1,9 +1,3 @@
-const MESSAGES_MAP = new Map([
-  ['everything', 'Click New Event to create your first point'],
-  ['past', 'There are no past events now'],
-  ['future', 'There are no future events now'],
-]);
-
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
@@ -51,4 +45,4 @@ const TimeLimit = {
 
 const END_POINT = 'https://17.ecmascript.pages.academy/big-trip';
 
-export {Mode, UserAction, UpdateType, FilterType, MESSAGES_MAP, SortType, Method, TimeLimit, END_POINT};
+export {Mode, UserAction, UpdateType, FilterType, SortType, Method, TimeLimit, END_POINT};
