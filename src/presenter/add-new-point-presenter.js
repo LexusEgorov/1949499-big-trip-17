@@ -70,7 +70,7 @@ export default class AddNewPointPresenter{
       dateFrom: dayjs().toISOString(),
       dateTo: dayjs().toISOString(),
       id: NEW_POINT_ID,
-      destination: this.#additionData.mapDestinations.values().next().value,
+      destination: '',
       isFavorite: false,
       type: this.#additionData.mapOffers.values().next().value.type,
       offers: [],
