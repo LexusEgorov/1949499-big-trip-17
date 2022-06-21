@@ -8,6 +8,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 import dayjs from 'dayjs';
 
 const NEW_POINT_ID = -1;
+const MIN_PRICE = 1;
 
 const getPictureTemplate = ({src}) => `<img class="event__photo" src=${src} alt="Event photo"></img>`;
 
@@ -124,7 +125,8 @@ const getEditTemplate = (state, {mapOffers, mapDestinations, eventDestinations, 
           ${type}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-${id}" type="text"
-          name="event-destination" value=${destination.name} list="destination-list-${id}" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
+          name="event-destination" list="destination-list-${id}" required autocomplete="off" ${isDisabled ? 'disabled' : ''}
+          value=${destination.name ? destination.name : ''}>
         <datalist id="destination-list-${id}">
           ${getEventDestinations(eventDestinations)}
         </datalist>
@@ -271,7 +273,8 @@ export default class FormCreateEditView extends AbstractStatefulView{
 
   #changePriceHandler = (evt) => {
     evt.preventDefault();
-    this._state.basePrice = Number(evt.target.value);
+    const inputedPrice = Number(evt.target.value);
+    this._state.basePrice = inputedPrice >= MIN_PRICE ? inputedPrice : MIN_PRICE;
     this.updateElement(this._state);
   };
 
